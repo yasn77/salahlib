@@ -29,7 +29,7 @@ func init() {
 	}
 }
 
-var numRe = regexp.MustCompile(`[0-9.+\-]+`)
+var numRe = regexp.MustCompile(`^[0-9.+\-]+`)
 var minRe = regexp.MustCompile(`min`)
 
 func value(x interface{}) float64 {
