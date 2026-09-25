@@ -12,3 +12,6 @@ Multi-language Islamic prayer-times library (AlAdhan-compatible). Targets Python
 ```sh
 mise install && mise run test
 ```
+## License
+
+Apache-2.0. See NOTICE, PROVENANCE.md and THIRD-PARTY-NOTICES.md.

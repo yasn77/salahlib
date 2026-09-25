@@ -2,7 +2,6 @@
 from datetime import date
 
 import pytest
-
 from prayer_times import PrayerTimes
 from prayer_times.methods import resolve
 
