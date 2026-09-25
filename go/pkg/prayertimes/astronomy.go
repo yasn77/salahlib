@@ -3,6 +3,7 @@ package prayertimes
 import (
 	"fmt"
 	"math"
+	"time"
 )
 
 func mod(a, b float64) float64 {
@@ -97,6 +98,68 @@ type RawTimes struct {
 	Midnight, Firstthird, Lastthird                         float64
 }
 
+func roundAway(x float64) float64 {
+	if x >= 0 {
+		return math.Floor(x + 0.5)
+	}
+	return math.Ceil(x - 0.5)
+}
+
+func dyy(y, m, d int, latitude float64) int {
+	anchorM, anchorD := 12, 21
+	if latitude <= 0 {
+		anchorM, anchorD = 6, 21
+	}
+	anchor := time.Date(y, time.Month(anchorM), anchorD, 0, 0, 0, 0, time.UTC)
+	target := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
+	n := int(target.Sub(anchor).Hours() / 24)
+	if n >= 2 {
+		return n - 1
+	}
+	if n >= 0 {
+		return 365
+	}
+	return 365 + n
+}
+
+func interpolate(a, b, c, d float64, dy int) float64 {
+	switch {
+	case dy < 91:
+		return a + (b-a)/91*float64(dy)
+	case dy < 137:
+		return b + (c-b)/46*float64(dy-91)
+	case dy < 183:
+		return c + (d-c)/46*float64(dy-137)
+	case dy < 229:
+		return d + (c-d)/46*float64(dy-183)
+	case dy < 275:
+		return c + (b-c)/46*float64(dy-229)
+	default:
+		return b + (a-b)/91*float64(dy-275)
+	}
+}
+
+func fajrMinutes(latitude float64, dy int) float64 {
+	a := 75 + 28.65/55*math.Abs(latitude)
+	b := 75 + 19.44/55*math.Abs(latitude)
+	c := 75 + 32.74/55*math.Abs(latitude)
+	d := 75 + 48.10/55*math.Abs(latitude)
+	return interpolate(a, b, c, d, dy)
+}
+
+func ishaMinutes(latitude float64, dy int, shafaq string) float64 {
+	var a, b, c, d float64
+	switch shafaq {
+	case "ahmer":
+		a, b, c, d = 62+17.4/55*math.Abs(latitude), 62-7.16/55*math.Abs(latitude), 62+5.12/55*math.Abs(latitude), 62+19.44/55*math.Abs(latitude)
+	case "abyad":
+		a, b, c, d = 75+25.6/55*math.Abs(latitude), 75+7.16/55*math.Abs(latitude), 75+36.84/55*math.Abs(latitude), 75+81.84/55*math.Abs(latitude)
+	default:
+		a, b, c, d = 75+25.6/55*math.Abs(latitude), 75+2.05/55*math.Abs(latitude), 75-9.21/55*math.Abs(latitude), 75+6.14/55*math.Abs(latitude)
+	}
+	return interpolate(a, b, c, d, dy)
+}
+
 // Calculate is the pure kernel.
 func Calculate(y, m, d int, latitude, longitude, elevation float64, p Params) RawTimes {
 	horizon := horizonAngle(elevation)
@@ -154,6 +217,14 @@ func Calculate(y, m, d int, latitude, longitude, elevation float64, p Params) Ra
 	midnight := sunset + diff/2.0
 	firstthird := sunset + diff/3.0
 	lastthird := sunset + 2.0*diff/3.0
+
+	// Moonsighting override (SPEC §11): after night times, before offsets.
+	if p.Shafaq != "" {
+		dy := dyy(y, m, d, latitude)
+		fajr = sunrise - roundAway(fajrMinutes(latitude, dy))/60.0
+		isha = sunset + roundAway(ishaMinutes(latitude, dy, p.Shafaq))/60.0
+		imsak = fajr - p.ImsakMins/60.0
+	}
 
 	o := p.Offsets
 	imsak += o.Imsak / 60.0

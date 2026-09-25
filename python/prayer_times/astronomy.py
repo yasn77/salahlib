@@ -1,5 +1,6 @@
 """Pure calculation kernel. Numbers and enums in, float hours out."""
 import math
+from datetime import date
 
 from .params import LatAdjust, Midnight, Params, Unreached
 
@@ -107,6 +108,54 @@ def _night_fraction(lat_adjust, angle, night):
     return (angle / 60.0) * night
 
 
+def round_away(x: float) -> float:
+    """Round half away from zero (PHP/Go round(); Python round() is half-even)."""
+    return math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
+
+
+def _dyy(y: int, m: int, d: int, latitude: float) -> int:
+    """Days since the hemisphere's solstice anchor (SPEC §11)."""
+    anchor_m, anchor_d = (12, 21) if latitude > 0 else (6, 21)
+    n = (date(y, m, d) - date(y, anchor_m, anchor_d)).days
+    if n >= 2:
+        return n - 1
+    if n >= 0:
+        return 365
+    return 365 + n
+
+
+def _interpolate(a: float, b: float, c: float, d: float, dyy: int) -> float:
+    if dyy < 91:
+        return a + (b - a) / 91 * dyy
+    if dyy < 137:
+        return b + (c - b) / 46 * (dyy - 91)
+    if dyy < 183:
+        return c + (d - c) / 46 * (dyy - 137)
+    if dyy < 229:
+        return d + (c - d) / 46 * (dyy - 183)
+    if dyy < 275:
+        return c + (b - c) / 46 * (dyy - 229)
+    return b + (a - b) / 91 * (dyy - 275)
+
+
+def _fajr_minutes(latitude: float, dyy: int) -> float:
+    a = 75 + 28.65 / 55 * abs(latitude)
+    b = 75 + 19.44 / 55 * abs(latitude)
+    c = 75 + 32.74 / 55 * abs(latitude)
+    d = 75 + 48.10 / 55 * abs(latitude)
+    return _interpolate(a, b, c, d, dyy)
+
+
+def _isha_minutes(latitude: float, dyy: int, shafaq: str) -> float:
+    if shafaq == "ahmer":
+        a, b, c, d = 62 + 17.4 / 55 * abs(latitude), 62 - 7.16 / 55 * abs(latitude), 62 + 5.12 / 55 * abs(latitude), 62 + 19.44 / 55 * abs(latitude)
+    elif shafaq == "abyad":
+        a, b, c, d = 75 + 25.6 / 55 * abs(latitude), 75 + 7.16 / 55 * abs(latitude), 75 + 36.84 / 55 * abs(latitude), 75 + 81.84 / 55 * abs(latitude)
+    else:  # general
+        a, b, c, d = 75 + 25.6 / 55 * abs(latitude), 75 + 2.05 / 55 * abs(latitude), 75 - 9.21 / 55 * abs(latitude), 75 + 6.14 / 55 * abs(latitude)
+    return _interpolate(a, b, c, d, dyy)
+
+
 def calculate(y: int, m: int, d: int, latitude: float, longitude: float,
               elevation: float, params: Params) -> dict:
     horizon = horizon_angle(elevation)
@@ -157,6 +206,13 @@ def calculate(y: int, m: int, d: int, latitude: float, longitude: float,
     midnight = sunset + diff / 2.0
     firstthird = sunset + diff / 3.0
     lastthird = sunset + 2.0 * diff / 3.0
+
+    # Moonsighting override (SPEC §11): runs after night times, before offsets.
+    if params.shafaq is not None:
+        dyy = _dyy(y, m, d, latitude)
+        fajr = sunrise - round_away(_fajr_minutes(latitude, dyy)) / 60.0
+        isha = sunset + round_away(_isha_minutes(latitude, dyy, params.shafaq)) / 60.0
+        imsak = fajr - params.imsak_mins / 60.0
 
     o = params.offsets
     imsak += o.imsak / 60.0

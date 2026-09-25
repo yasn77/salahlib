@@ -1,6 +1,9 @@
 package prayertimes
 
-import "time"
+import (
+	"math"
+	"time"
+)
 
 // PrayerTimes is the public facade.
 type PrayerTimes struct {
@@ -37,4 +40,14 @@ func (p *PrayerTimes) GetTimes(date time.Time, latitude, longitude float64, tz s
 		"Midnight":   FormatTime(raw.Midnight),
 		"Firstthird": FormatTime(raw.Firstthird), "Lastthird": FormatTime(raw.Lastthird),
 	}
+}
+
+// FormatISO8601 renders a float hour as an ISO8601 timestamp (RFC3339) on the date, in loc.
+func FormatISO8601(t float64, date time.Time, loc *time.Location) string {
+	base := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, loc)
+	t2 := t + 0.5/60.0 // round, same as FormatTime
+	if t2 > 0 {
+		return base.Add(time.Duration(math.Floor(t2*60)) * time.Minute).Format(time.RFC3339)
+	}
+	return base.Add(-time.Duration(math.Ceil(-t2*60)) * time.Minute).Format(time.RFC3339)
 }

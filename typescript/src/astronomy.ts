@@ -77,6 +77,52 @@ function nightFraction(la: Params["latAdjust"], angle: number, night: number): n
   return (angle / 60.0) * night;
 }
 
+function roundAway(x: number): number {
+  return x >= 0 ? Math.floor(x + 0.5) : Math.ceil(x - 0.5);
+}
+
+function dyy(y: number, m: number, d: number, latitude: number): number {
+  const [anchorM, anchorD] = latitude > 0 ? [12, 21] : [6, 21];
+  const anchor = Date.UTC(y, anchorM - 1, anchorD);
+  const target = Date.UTC(y, m - 1, d);
+  const n = Math.round((target - anchor) / 86400000);
+  if (n >= 2) return n - 1;
+  if (n >= 0) return 365;
+  return 365 + n;
+}
+
+function interpolate(a: number, b: number, c: number, d: number, dy: number): number {
+  if (dy < 91) return a + ((b - a) / 91) * dy;
+  if (dy < 137) return b + ((c - b) / 46) * (dy - 91);
+  if (dy < 183) return c + ((d - c) / 46) * (dy - 137);
+  if (dy < 229) return d + ((c - d) / 46) * (dy - 183);
+  if (dy < 275) return c + ((b - c) / 46) * (dy - 229);
+  return b + ((a - b) / 91) * (dy - 275);
+}
+
+function fajrMinutes(latitude: number, dy: number): number {
+  const a = 75 + (28.65 / 55) * Math.abs(latitude);
+  const b = 75 + (19.44 / 55) * Math.abs(latitude);
+  const c = 75 + (32.74 / 55) * Math.abs(latitude);
+  const d = 75 + (48.10 / 55) * Math.abs(latitude);
+  return interpolate(a, b, c, d, dy);
+}
+
+function ishaMinutes(latitude: number, dy: number, shafaq: string): number {
+  let a: number, b: number, c: number, d: number;
+  if (shafaq === "ahmer") {
+    a = 62 + (17.4 / 55) * Math.abs(latitude); b = 62 - (7.16 / 55) * Math.abs(latitude);
+    c = 62 + (5.12 / 55) * Math.abs(latitude); d = 62 + (19.44 / 55) * Math.abs(latitude);
+  } else if (shafaq === "abyad") {
+    a = 75 + (25.6 / 55) * Math.abs(latitude); b = 75 + (7.16 / 55) * Math.abs(latitude);
+    c = 75 + (36.84 / 55) * Math.abs(latitude); d = 75 + (81.84 / 55) * Math.abs(latitude);
+  } else {
+    a = 75 + (25.6 / 55) * Math.abs(latitude); b = 75 + (2.05 / 55) * Math.abs(latitude);
+    c = 75 - (9.21 / 55) * Math.abs(latitude); d = 75 + (6.14 / 55) * Math.abs(latitude);
+  }
+  return interpolate(a, b, c, d, dy);
+}
+
 export function calculate(
   y: number, m: number, d: number, latitude: number, longitude: number,
   elevation: number, p: Params,
@@ -123,12 +169,20 @@ export function calculate(
   let ishaF = isha;
   if (p.ishaIsMinutes) ishaF = maghribF + p.isha / 60.0;
   const dhuhrF = dhuhr2 + p.dhuhrMins / 60.0;
-  const imsak = fajr - p.imsakMins / 60.0;
+  let imsak = fajr - p.imsakMins / 60.0;
 
   const diff = p.midnightMode === "JAFARI" ? mod(fajr - sunset2, 24.0) : mod(sunrise2 - sunset2, 24.0);
   const midnight = sunset2 + diff / 2.0;
   const firstthird = sunset2 + diff / 3.0;
   const lastthird = sunset2 + (2.0 * diff) / 3.0;
+
+  // Moonsighting override (SPEC §11): after night times, before offsets.
+  if (p.shafaq) {
+    const dy = dyy(y, m, d, latitude);
+    fajr = sunrise2 - roundAway(fajrMinutes(latitude, dy)) / 60.0;
+    ishaF = sunset2 + roundAway(ishaMinutes(latitude, dy, p.shafaq)) / 60.0;
+    imsak = fajr - p.imsakMins / 60.0;
+  }
 
   const o = p.offsets;
   return {

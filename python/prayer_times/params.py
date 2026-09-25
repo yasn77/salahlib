@@ -48,3 +48,4 @@ class Params:
     unreached_policy: Unreached
     offsets: Offsets = field(default_factory=Offsets)
     timezone_offset_hours: float = 0.0
+    shafaq: str | None = None  # "general"/"ahmer"/"abyad" for MOONSIGHTING, else None

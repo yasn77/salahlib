@@ -1,7 +1,6 @@
 """Facade / method-resolution regression tests (SPEC §12 envelope + guards)."""
 from datetime import date
 
-import pytest
 from prayer_times import PrayerTimes
 from prayer_times.methods import resolve
 
@@ -28,6 +27,20 @@ def test_turkey_default_tune():
     assert off["Maghrib"] == 7
 
 
-def test_moonsighting_deferred_guard():
-    with pytest.raises(NotImplementedError):
-        resolve("MOONSIGHTING")
+def test_moonsighting_resolves():
+    # MOONSIGHTING resolves (SPEC §11); shafaq defaults to "general".
+    p = resolve("MOONSIGHTING")
+    assert p.shafaq == "general"
+
+
+def test_moonsighting_times():
+    # London, method 15, 2024-10-15 (away from solstices) — matches AlAdhan.
+    t = PrayerTimes(15).get_times(date(2024, 10, 15), 51.508515, -0.1254872, tz="Europe/London")
+    assert t["Fajr"] == "05:50"
+    assert t["Isha"] == "19:28"
+
+
+def test_iso8601():
+    t = PrayerTimes("ISNA").get_times(date(2014, 4, 24), 51.508515, -0.1254872, tz="Europe/London", fmt="iso8601")
+    assert t["Fajr"] == "2014-04-24T03:57:00+01:00"
+    assert t["Midnight"] == "2014-04-25T00:59:00+01:00"  # next-day rollover

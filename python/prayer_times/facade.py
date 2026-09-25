@@ -1,5 +1,6 @@
 """Public API: PrayerTimes facade."""
-from datetime import datetime
+import math
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from .astronomy import calculate, format_time
@@ -11,7 +12,7 @@ def _tz_offset_hours(y, m, d, tz):
     return datetime(y, m, d, tzinfo=ZoneInfo(tz)).utcoffset().total_seconds() / 3600.0
 
 
-def _fmt(t, fmt):
+def _fmt(t, fmt, base=None):
     if fmt == "Float":
         return t
     if fmt == "24h":
@@ -25,7 +26,11 @@ def _fmt(t, fmt):
         s = format_time(t)
         return f"{((int(s.split(':')[0]) + 11) % 12) + 1}:{s.split(':')[1]}"
     if fmt == "iso8601":
-        raise NotImplementedError("iso8601 format is deferred (SPEC §10)")
+        # floor(time·60) for positive, ceil(−time·60) for negative, on the rounded un-wrapped time (SPEC §10).
+        t2 = t + 0.5 / 60.0
+        if t2 > 0:
+            return (base + timedelta(minutes=math.floor(t2 * 60))).isoformat()
+        return (base - timedelta(minutes=math.ceil(-t2 * 60))).isoformat()
     raise ValueError(f"unknown format: {fmt}")
 
 
@@ -47,7 +52,8 @@ class PrayerTimes:
             timezone_offset_hours=_tz_offset_hours(y, m, d, tz),
         )
         raw = calculate(y, m, d, latitude, longitude, elevation, params)
-        return {k: _fmt(v, fmt) for k, v in raw.items()}
+        base = datetime(y, m, d, tzinfo=ZoneInfo(tz))
+        return {k: _fmt(v, fmt, base) for k, v in raw.items()}
 
     def to_aladhan_response(self, dt, latitude, longitude, elevation=0.0,
                             lat_adjust="ANGLE_BASED", midnight_mode=None, tz="UTC",

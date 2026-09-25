@@ -41,4 +41,5 @@ type Params struct {
 	UnreachedPolicy     Unreached
 	Offsets             Offsets
 	TimezoneOffsetHours float64
+	Shafaq              string // "general"/"ahmer"/"abyad" for MOONSIGHTING, else ""
 }

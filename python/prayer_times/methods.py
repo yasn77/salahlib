@@ -37,9 +37,8 @@ def resolve(method, school="STANDARD", asr_factor=None, lat_adjust="ANGLE_BASED"
     if key is None:
         raise KeyError(f"unknown method: {method}")
     entry = _DATA[key]
-    if key == "MOONSIGHTING":
-        raise NotImplementedError("MOONSIGHTING backend is deferred (SPEC §11); not yet implemented")
     p = entry.get("params", {})
+    shafaq = p.get("shafaq")  # None except MOONSIGHTING ("general"/"ahmer"/"abyad")
 
     fajr = _value(p.get("Fajr", 0))
     isha = p.get("Isha", 0)
@@ -68,4 +67,5 @@ def resolve(method, school="STANDARD", asr_factor=None, lat_adjust="ANGLE_BASED"
         unreached_policy=Unreached(unreached_policy),
         offsets=o,
         timezone_offset_hours=timezone_offset_hours,
+        shafaq=shafaq,
     )

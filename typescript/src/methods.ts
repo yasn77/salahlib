@@ -33,8 +33,8 @@ export function resolve(
   const key = methods[String(method)] ? String(method) : byId.get(String(method));
   if (!key) throw new Error(`unknown method: ${method}`);
   const entry = methods[key];
-  if (entry.id === 15) throw new Error("MOONSIGHTING backend is deferred (SPEC §11); not yet implemented");
   const p = entry.params ?? {};
+  const shafaq = typeof p.shafaq === "string" ? p.shafaq : undefined;
   const af = asrFactor ?? (school === "HANAFI" ? 2.0 : 1.0);
 
   const off: Record<string, number> = { ...(entry.defaultTune ?? {}) };
@@ -68,5 +68,6 @@ export function resolve(
       Sunset: off.Sunset ?? 0, Isha: off.Isha ?? 0, Midnight: off.Midnight ?? 0,
     } satisfies Offsets,
     timezoneOffsetHours,
+    shafaq,
   };
 }

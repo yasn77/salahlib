@@ -18,4 +18,5 @@ export interface Params {
   imsakMins: number; dhuhrMins: number; asrFactor: number;
   latAdjust: LatAdjust; midnightMode: Midnight; unreachedPolicy: Unreached;
   offsets: Offsets; timezoneOffsetHours: number;
+  shafaq?: string; // "general"/"ahmer"/"abyad" for MOONSIGHTING
 }

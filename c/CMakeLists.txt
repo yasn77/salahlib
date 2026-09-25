@@ -12,3 +12,7 @@ enable_testing()
 add_executable(prayer_times_test test/test_kernel.c)
 target_link_libraries(prayer_times_test prayer_times m)
 add_test(NAME kernel COMMAND prayer_times_test)
+
+add_executable(prayer_times_aladhan_test test/test_aladhan.c)
+target_link_libraries(prayer_times_aladhan_test prayer_times m)
+add_test(NAME aladhan COMMAND prayer_times_aladhan_test)

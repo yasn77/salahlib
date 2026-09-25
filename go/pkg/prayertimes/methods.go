@@ -59,10 +59,8 @@ func Resolve(method, school string, asrFactor *float64, latAdjust LatAdjust, mid
 	if !ok {
 		return Params{}, fmt.Errorf("unknown method %s", method)
 	}
-	if entry.ID == 15 {
-		return Params{}, fmt.Errorf("MOONSIGHTING backend is deferred (SPEC §11); not yet implemented")
-	}
 	p := entry.Params
+	shafaq, _ := p["shafaq"].(string)
 	af := 1.0
 	if asrFactor != nil {
 		af = *asrFactor
@@ -116,5 +114,6 @@ func Resolve(method, school string, asrFactor *float64, latAdjust LatAdjust, mid
 			Sunset: offsets["Sunset"], Isha: offsets["Isha"], Midnight: offsets["Midnight"],
 		},
 		TimezoneOffsetHours: tzOffset,
+		Shafaq:              shafaq,
 	}, nil
 }
