@@ -216,8 +216,8 @@ static void civil_from_days(long z, int *y, unsigned *m, unsigned *d) {
 void pt_format_iso8601(double t, int y, int m, int d, double tz_offset_hours, char *buf, size_t buflen) {
     double t2 = t + 0.5 / 60.0;
     double mins = t2 > 0 ? floor(t2 * 60) : -ceil(-t2 * 60);
-    double jd = julian_day(y, m, d) + mins / 1440.0;
-    double unix_days = jd - 2440587.5;
+    long base = days_from_civil(y, (unsigned)m, (unsigned)d);
+    double unix_days = (double)base + mins / 1440.0;
     long day = (long)floor(unix_days);
     double frac = unix_days - day;
     int yy, hh, mm, ss;
