@@ -19,7 +19,7 @@ CASES = [
 def fetch(date_str, lat, lng, method, school):
     url = (f"https://api.aladhan.com/v1/timings/{date_str}"
            f"?latitude={lat}&longitude={lng}&method={method}&school={school}")
-    with urllib.request.urlopen(url) as r:
+    with urllib.request.urlopen(url, timeout=30) as r:
         return json.load(r)
 
 
