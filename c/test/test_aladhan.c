@@ -1,6 +1,7 @@
 #include "prayer_times.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Golden values from shared/vectors/aladhan/*.json (AlAdhan API).
@@ -25,6 +26,21 @@ static int check(double t, const char *want) {
     format(t, buf);
     if (strcmp(buf, want) != 0) {
         printf("FAIL: got %s want %s\n", buf, want);
+        return 1;
+    }
+    return 0;
+}
+
+static int check_within(double t, const char *want, int tol_min) {
+    char buf[8];
+    int got_h, got_m, want_h, want_m;
+    format(t, buf);
+    sscanf(buf, "%d:%d", &got_h, &got_m);
+    sscanf(want, "%d:%d", &want_h, &want_m);
+    int got = got_h * 60 + got_m;
+    int w = want_h * 60 + want_m;
+    if (abs(got - w) > tol_min) {
+        printf("FAIL(within %d min): got %s want %s\n", tol_min, buf, want);
         return 1;
     }
     return 0;
@@ -93,6 +109,22 @@ int main(void) {
         if (strcmp(buf, "2014-04-24T03:57:00+01:00") != 0) { printf("FAIL iso8601 fajr: got %s\n", buf); fail |= 1; }
         pt_format_iso8601(t.midnight, 2014, 4, 24, 1.0, buf, sizeof(buf));
         if (strcmp(buf, "2014-04-25T00:59:00+01:00") != 0) { printf("FAIL iso8601 midnight: got %s\n", buf); fail |= 1; }
+    }
+
+    /* Case 6: London Unified Prayer Timetable 2026-09-26 (Charing Cross, BST) */
+    {
+        pt_params p = {0};
+        if (pt_resolve_method("LUT", 0, 0, &p) != 0) { printf("FAIL LUT resolve\n"); fail |= 1; }
+        else {
+            p.tz_offset_hours = 1.0;
+            pt_calculate(2026, 9, 26, 51.5073, -0.12755, 0, &p, &t);
+            fail |= check_within(t.sunrise, "06:50", 1);
+            fail |= check_within(t.dhuhr, "12:57", 1);
+            fail |= check_within(t.maghrib, "18:53", 1);
+            fail |= check_within(t.asr, "16:05", 5);
+            fail |= check_within(t.fajr, "05:22", 5);
+            fail |= check_within(t.isha, "20:10", 5);
+        }
     }
 
     if (fail) return 1;

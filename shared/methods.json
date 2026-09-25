@@ -144,7 +144,7 @@
   "LUT": {
     "id": 1001,
     "name": "London Unified Prayer Timetable",
-    "params": { "shafaq": "general" },
+    "extends": "MOONSIGHTING",
     "location": { "latitude": 51.5073, "longitude": -0.12755 },
     "defaultTune": { "Sunrise": -3, "Dhuhr": 5, "Asr": 2, "Sunset": 3, "Maghrib": 3 }
   },

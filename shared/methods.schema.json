@@ -26,6 +26,10 @@
       "properties": {
         "id": { "type": "integer" },
         "name": { "type": "string" },
+        "extends": {
+          "type": "string",
+          "description": "Key of a base method whose `params` this method inherits (flattened at sync/generate time)."
+        },
         "params": { "type": "object", "additionalProperties": { "$ref": "#/$defs/param" } },
         "location": {
           "type": "object",

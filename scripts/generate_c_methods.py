@@ -44,8 +44,35 @@ def tune_array(tune):
     return "{" + ",".join(fmt_double(v) for v in arr) + "}"
 
 
+def flatten(methods):
+    """Expand `extends` into fully-resolved `params` (base first, child overrides)."""
+
+    def base_params(key, stack):
+        entry = methods[key]
+        base = entry.get("extends")
+        params = {}
+        if base:
+            if base not in methods:
+                raise ValueError(f"unknown 'extends': {base} (in {key})")
+            if base in stack:
+                raise ValueError("'extends' cycle: " + " -> ".join(stack + [base]))
+            params = base_params(base, stack + [key])
+        params.update(entry.get("params", {}))
+        return params
+
+    out = {}
+    for key, entry in methods.items():
+        e = dict(entry)
+        if "extends" in e:
+            e.pop("extends")
+            e["params"] = base_params(key, [key])
+        out[key] = e
+    return out
+
+
 def main():
     methods = json.loads(SRC.read_text())
+    methods = flatten(methods)
     entries = [(key, methods[key]) for key in methods]
     entries.sort(key=lambda kv: kv[1]["id"])
 

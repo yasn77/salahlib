@@ -59,6 +59,10 @@ CI runs `mise run ci` on every push (`.github/workflows/ci.yml`).
   `shared/methods.json`, then:
   - `mise run sync-data` → copies it into `python/…/data/`, `go/…/`, `typescript/src/`.
   - rebuild C → `c/CMakeLists.txt` regenerates `c/include/methods_generated.h` at build time.
+- **Composition via `extends`.** A method may declare `"extends": "BASE"` to inherit the base method's
+  `params` (e.g. `LUT` extends `MOONSIGHTING`, inheriting `shafaq: "general"`). This is an *authoring*
+  convenience: `sync-data` and `generate_c_methods.py` flatten `extends` into fully-resolved `params` at
+  fan-out time, so the language resolvers never see it.
 - **The kernels must stay float-identical** (≤1e-9 h). After any kernel change, run `mise run parity`.
 - **Do not "fix" the quirks** in `SPEC.md`'s target-behaviour register. These are *observed AlAdhan
   behaviours* that must be reproduced, notably:
