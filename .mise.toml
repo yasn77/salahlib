@@ -41,4 +41,4 @@ run = "python3 tests/parity.py"
 run = "uv run --project python ruff check python && gofmt -l . && bun x tsc -p typescript/tsconfig.json --noEmit"
 
 [tasks.ci]
-depends = ["test", "parity", "lint"]
+run = "mise run test && mise run parity && mise run lint"

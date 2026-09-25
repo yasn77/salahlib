@@ -2,8 +2,9 @@
 """Run all four dump CLIs on shared inputs and assert float agreement (<=1e-9 h)."""
 import os
 import subprocess
+from pathlib import Path
 
-ROOT = "/home/yasser/git/yasn77/salahlib"
+ROOT = str(Path(__file__).resolve().parent.parent)
 CASES = [
     ["2014", "4", "24", "51.508515", "-0.1254872", "0", "15", "15", "0", "0", "1"],
     ["2024", "1", "22", "64.0", "20.0", "0", "15", "15", "0", "0", "1"],
