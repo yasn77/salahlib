@@ -20,7 +20,7 @@ typedef struct {
     double ramadan_tune[9];
 } pt_method;
 
-#define PT_METHOD_COUNT 24
+#define PT_METHOD_COUNT 25
 
 static const pt_method pt_methods[PT_METHOD_COUNT] = {
     { 0, "JAFARI", "Shia Ithna-Ashari, Leva Institute, Qum", 16.0, 14.0, 0, 4.0, 0, 10.0, 0.0, 1, NULL, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} },
@@ -47,6 +47,7 @@ static const pt_method pt_methods[PT_METHOD_COUNT] = {
     { 22, "PORTUGAL", "Comunidade Islamica de Lisboa", 18.0, 77.0, 1, 3.0, 1, 10.0, 0.0, 0, NULL, {0.0,0.0,0.0,5.0,0.0,0.0,0.0,0.0,0.0}, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} },
     { 23, "JORDAN", "Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan", 18.0, 18.0, 0, 5.0, 1, 10.0, 0.0, 0, NULL, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} },
     { 99, "CUSTOM", "", 0.0, 0.0, 0, 0.0, 1, 10.0, 0.0, 0, NULL, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} },
+    { 1001, "LUT", "London Unified Prayer Timetable", 0.0, 0.0, 0, 0.0, 1, 10.0, 0.0, 0, "general", {0.0,0.0,-3.0,5.0,2.0,3.0,3.0,0.0,0.0}, {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0} },
 };
 
 #endif

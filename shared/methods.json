@@ -141,6 +141,13 @@
     "params": { "Fajr": 18, "Maghrib": "5 min", "Isha": 18 },
     "location": { "latitude": 31.9461222, "longitude": 35.923844 }
   },
+  "LUT": {
+    "id": 1001,
+    "name": "London Unified Prayer Timetable",
+    "params": { "shafaq": "general" },
+    "location": { "latitude": 51.5073, "longitude": -0.12755 },
+    "defaultTune": { "Sunrise": -3, "Dhuhr": 5, "Asr": 2, "Sunset": 3, "Maghrib": 3 }
+  },
   "CUSTOM": {
     "id": 99
   }

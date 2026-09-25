@@ -44,3 +44,20 @@ def test_iso8601():
     t = PrayerTimes("ISNA").get_times(date(2014, 4, 24), 51.508515, -0.1254872, tz="Europe/London", fmt="iso8601")
     assert t["Fajr"] == "2014-04-24T03:57:00+01:00"
     assert t["Midnight"] == "2014-04-25T00:59:00+01:00"  # next-day rollover
+
+
+def test_lut_method():
+    # London Unified Prayer Timetable = Moonsighting (seasonal Fajr/Isha) + per-prayer adjustments.
+    p = resolve("LUT")
+    assert p.shafaq == "general"
+    assert p.offsets.sunrise == -3
+    assert p.offsets.dhuhr == 5
+    assert p.offsets.asr == 2
+    assert p.offsets.sunset == 3
+    # 26 Sep 2026, Charing Cross — the Dhuhr/Sunrise/Sunset/Maghrib adjustments are exact;
+    # Fajr/Isha are the Moonsighting model (within ~2-5 min of the Hizbul-Ulama observation chart).
+    t = PrayerTimes("LUT").get_times(date(2026, 9, 26), 51.5073, -0.12755, tz="Europe/London")
+    assert t["Sunrise"] == "06:50"
+    assert t["Dhuhr"] == "12:57"
+    assert t["Sunset"] == "18:53"
+    assert t["Maghrib"] == "18:53"
