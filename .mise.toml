@@ -7,11 +7,9 @@ bun    = "latest"
 cmake = "latest"
 
 [tasks.gen-fixtures]
-description = "Fetch golden vectors from the AlAdhan API (manual / scheduled drift job — NOT in CI)"
 run = "uv run scripts/generate_fixtures.py"
 
 [tasks.sync-data]
-description = "Copy shared/methods.json into each language tree (committed copies)"
 run = "uv run scripts/sync_data.py"
 
 [tasks.test-python]
@@ -23,11 +21,13 @@ run = "go test ./..."
 [tasks.test-ts]
 run = "bun test"
 
+[tasks.test-c]
+run = "cmake --build c/build && ctest --test-dir c/build"
+
 [tasks.test]
-depends = ["test-python", "test-go", "test-ts"]
+depends = ["test-python", "test-go", "test-ts", "test-c"]
 
 [tasks.parity]
-description = "Cross-language float parity (≤1e-9 hours)"
 run = "uv run tests/parity.py"
 
 [tasks.lint]
