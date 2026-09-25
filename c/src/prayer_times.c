@@ -1,14 +1,16 @@
 #include "prayer_times.h"
 #include <math.h>
 
+#define PR_PI 3.14159265358979323846
+
 static double mod(double a, double b) {
     double r = fmod(a, b);
     if (r < 0) r += b;
     return r;
 }
 
-static double dtr(double d) { return d * M_PI / 180.0; }
-static double rtd(double r) { return r * 180.0 / M_PI; }
+static double dtr(double d) { return d * PR_PI / 180.0; }
+static double rtd(double r) { return r * 180.0 / PR_PI; }
 static double ssin(double d) { return sin(dtr(d)); }
 static double cosd(double d) { return cos(dtr(d)); }
 static double ttan(double d) { return tan(dtr(d)); }
