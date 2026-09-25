@@ -1,0 +1,93 @@
+{
+  "timings": {
+    "Fajr": "05:17",
+    "Sunrise": "06:33",
+    "Dhuhr": "12:30",
+    "Asr": "15:53",
+    "Sunset": "18:29",
+    "Maghrib": "18:29",
+    "Isha": "20:29",
+    "Imsak": "05:07",
+    "Midnight": "00:31",
+    "Firstthird": "22:30",
+    "Lastthird": "02:31"
+  },
+  "date": {
+    "readable": "11 Mar 2024",
+    "timestamp": "1710129600",
+    "hijri": {
+      "date": "01-09-1445",
+      "format": "DD-MM-YYYY",
+      "day": "1",
+      "weekday": {
+        "en": "Al Athnayn",
+        "ar": "\u0627\u0644\u0627\u062b\u0646\u064a\u0646"
+      },
+      "month": {
+        "number": 9,
+        "en": "Rama\u1e0d\u0101n",
+        "ar": "\u0631\u064e\u0645\u064e\u0636\u0627\u0646",
+        "days": 30
+      },
+      "year": "1445",
+      "designation": {
+        "abbreviated": "AH",
+        "expanded": "Anno Hegirae"
+      },
+      "holidays": [
+        "1st Day of Ramadan"
+      ],
+      "adjustedHolidays": [],
+      "method": "HJCoSA"
+    },
+    "gregorian": {
+      "date": "11-03-2024",
+      "format": "DD-MM-YYYY",
+      "day": "11",
+      "weekday": {
+        "en": "Monday"
+      },
+      "month": {
+        "number": 3,
+        "en": "March"
+      },
+      "year": "2024",
+      "designation": {
+        "abbreviated": "AD",
+        "expanded": "Anno Domini"
+      },
+      "lunarSighting": false
+    }
+  },
+  "meta": {
+    "latitude": 21.3890824,
+    "longitude": 39.8579118,
+    "timezone": "Asia/Riyadh",
+    "method": {
+      "id": 4,
+      "name": "Umm Al-Qura University, Makkah",
+      "params": {
+        "Fajr": 18.5,
+        "Isha": "90 min"
+      },
+      "location": {
+        "latitude": 21.3890824,
+        "longitude": 39.8579118
+      }
+    },
+    "latitudeAdjustmentMethod": "ANGLE_BASED",
+    "midnightMode": "STANDARD",
+    "school": "STANDARD",
+    "offset": {
+      "Imsak": 0,
+      "Fajr": 0,
+      "Sunrise": 0,
+      "Dhuhr": 0,
+      "Asr": 0,
+      "Maghrib": 0,
+      "Sunset": 0,
+      "Isha": 30,
+      "Midnight": 0
+    }
+  }
+}
