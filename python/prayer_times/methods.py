@@ -10,6 +10,7 @@ _BY_ID = {str(v["id"]): k for k, v in _DATA.items()}
 
 
 def _value(x):
+    """Numeric-prefix coercion (SPEC §7): "90 min" -> 90.0, "4.5" -> 4.5, "JAFARI" -> 0.0."""
     m = re.match(r"[0-9.+\-]+", str(x))
     return float(m.group(0)) if m else 0.0
 
@@ -36,6 +37,8 @@ def resolve(method, school="STANDARD", asr_factor=None, lat_adjust="ANGLE_BASED"
     if key is None:
         raise KeyError(f"unknown method: {method}")
     entry = _DATA[key]
+    if key == "MOONSIGHTING":
+        raise NotImplementedError("MOONSIGHTING backend is deferred (SPEC §11); not yet implemented")
     p = entry.get("params", {})
 
     fajr = _value(p.get("Fajr", 0))
@@ -46,12 +49,13 @@ def resolve(method, school="STANDARD", asr_factor=None, lat_adjust="ANGLE_BASED"
     af = asr_factor if asr_factor is not None else (2.0 if school == "HANAFI" else 1.0)
 
     off = dict(entry.get("defaultTune", {}))
-    if is_ramadan:
-        off.update(entry.get("ramadanTune", {}))
     if offsets:
         for k, v in offsets.items():
             if v != 0:
                 off[k] = v
+    # ramadanTune applied last: in Ramadan MAKKAH's Isha:30 overrides even a user value (SPEC §12).
+    if is_ramadan:
+        off.update(entry.get("ramadanTune", {}))
     o = Offsets(**{k.lower(): float(v) for k, v in off.items()})
 
     return Params(

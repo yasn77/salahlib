@@ -3,9 +3,9 @@ name = "prayer-times"
 version = "0.1.0"
 description = "AlAdhan-compatible Islamic prayer times"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["tzdata"]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = ["pytest", "ruff", "jsonschema"]
 
 [build-system]
