@@ -73,6 +73,27 @@ int main(void) {
         fail |= check(t.imsak, "05:20");
         fail |= check(t.midnight, "23:57");
     }
+    /* Case 4: London Moonsighting 2024-10-15 (shafaq=general) */
+    {
+        pt_params p = {0};
+        p.shafaq = "general"; p.imsak_mins = 10; p.asr_factor = 1;
+        p.lat_adjust = 3; p.tz_offset_hours = 1.0;
+        pt_calculate(2024, 10, 15, 51.508515, -0.1254872, 0, &p, &t);
+        fail |= check(t.fajr, "05:50");
+        fail |= check(t.isha, "19:28");
+    }
+    /* Case 5: ISO8601 formatting (London ISNA 2014-04-24) */
+    {
+        char buf[32];
+        pt_params p = {0};
+        p.fajr_angle = 15; p.isha = 15; p.maghrib_is_minutes = 1; p.imsak_mins = 10; p.asr_factor = 1;
+        p.lat_adjust = 3; p.tz_offset_hours = 1.0;
+        pt_calculate(2014, 4, 24, 51.508515, -0.1254872, 0, &p, &t);
+        pt_format_iso8601(t.fajr, 2014, 4, 24, 1.0, buf, sizeof(buf));
+        if (strcmp(buf, "2014-04-24T03:57:00+01:00") != 0) { printf("FAIL iso8601 fajr: got %s\n", buf); fail |= 1; }
+        pt_format_iso8601(t.midnight, 2014, 4, 24, 1.0, buf, sizeof(buf));
+        if (strcmp(buf, "2014-04-25T00:59:00+01:00") != 0) { printf("FAIL iso8601 midnight: got %s\n", buf); fail |= 1; }
+    }
 
     if (fail) return 1;
     printf("aladhan ok\n");

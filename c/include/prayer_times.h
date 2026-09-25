@@ -1,6 +1,8 @@
 #ifndef PRAYER_TIMES_H
 #define PRAYER_TIMES_H
 
+#include <stddef.h>
+
 typedef struct {
     double fajr_angle;
     double isha;
@@ -14,6 +16,7 @@ typedef struct {
     int midnight_mode;    /* 0 STANDARD, 1 JAFARI */
     int unreached_policy; /* 0 CLAMP, 1 NAN */
     double tz_offset_hours;
+    const char *shafaq;   /* "general"/"ahmer"/"abyad" for MOONSIGHTING, else NULL */
     double offset[9];     /* imsak,fajr,sunrise,dhuhr,asr,maghrib,sunset,isha,midnight */
 } pt_params;
 
@@ -24,5 +27,8 @@ typedef struct {
 
 void pt_calculate(int y, int m, int d, double lat, double lng, double elevation,
                   const pt_params *p, pt_times *out);
+
+/* Format a float hour as ISO8601 (e.g. "2014-04-24T03:57:00+01:00") for date y/m/d and UTC offset (hours). */
+void pt_format_iso8601(double t, int y, int m, int d, double tz_offset_hours, char *buf, size_t buflen);
 
 #endif

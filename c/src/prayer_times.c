@@ -1,5 +1,7 @@
 #include "prayer_times.h"
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 
 #define PR_PI 3.14159265358979323846
 
@@ -83,6 +85,51 @@ static double night_fraction(int la, double angle, double night) {
     return (angle / 60.0) * night;
 }
 
+static double round_away(double x) {
+    return x >= 0 ? floor(x + 0.5) : ceil(x - 0.5);
+}
+
+static int dyy(int y, int m, int d, double lat) {
+    int am = 12, ad = 21;
+    if (lat <= 0) { am = 6; ad = 21; }
+    int n = (int)(julian_day(y, m, d) - julian_day(y, am, ad));
+    if (n >= 2) return n - 1;
+    if (n >= 0) return 365;
+    return 365 + n;
+}
+
+static double interpolate(double a, double b, double c, double d, int dy) {
+    if (dy < 91) return a + (b - a) / 91.0 * dy;
+    if (dy < 137) return b + (c - b) / 46.0 * (dy - 91);
+    if (dy < 183) return c + (d - c) / 46.0 * (dy - 137);
+    if (dy < 229) return d + (c - d) / 46.0 * (dy - 183);
+    if (dy < 275) return c + (b - c) / 46.0 * (dy - 229);
+    return b + (a - b) / 91.0 * (dy - 275);
+}
+
+static double fajr_minutes(double lat, int dy) {
+    double a = 75 + 28.65 / 55.0 * fabs(lat);
+    double b = 75 + 19.44 / 55.0 * fabs(lat);
+    double c = 75 + 32.74 / 55.0 * fabs(lat);
+    double d = 75 + 48.10 / 55.0 * fabs(lat);
+    return interpolate(a, b, c, d, dy);
+}
+
+static double isha_minutes(double lat, int dy, const char *shafaq) {
+    double a, b, c, d;
+    if (strcmp(shafaq, "ahmer") == 0) {
+        a = 62 + 17.4 / 55.0 * fabs(lat); b = 62 - 7.16 / 55.0 * fabs(lat);
+        c = 62 + 5.12 / 55.0 * fabs(lat); d = 62 + 19.44 / 55.0 * fabs(lat);
+    } else if (strcmp(shafaq, "abyad") == 0) {
+        a = 75 + 25.6 / 55.0 * fabs(lat); b = 75 + 7.16 / 55.0 * fabs(lat);
+        c = 75 + 36.84 / 55.0 * fabs(lat); d = 75 + 81.84 / 55.0 * fabs(lat);
+    } else {
+        a = 75 + 25.6 / 55.0 * fabs(lat); b = 75 + 2.05 / 55.0 * fabs(lat);
+        c = 75 - 9.21 / 55.0 * fabs(lat); d = 75 + 6.14 / 55.0 * fabs(lat);
+    }
+    return interpolate(a, b, c, d, dy);
+}
+
 void pt_calculate(int y, int m, int d, double lat, double lng, double elevation,
                   const pt_params *p, pt_times *out) {
     double horizon = horizon_angle(elevation);
@@ -123,6 +170,14 @@ void pt_calculate(int y, int m, int d, double lat, double lng, double elevation,
     double firstthird = sunset + diff / 3.0;
     double lastthird = sunset + 2.0 * diff / 3.0;
 
+    /* Moonsighting override (SPEC §11): after night times, before offsets. */
+    if (p->shafaq && p->shafaq[0] != '\0') {
+        int dy = dyy(y, m, d, lat);
+        fajr = sunrise - round_away(fajr_minutes(lat, dy)) / 60.0;
+        isha = sunset + round_away(isha_minutes(lat, dy, p->shafaq)) / 60.0;
+        imsak = fajr - p->imsak_mins / 60.0;
+    }
+
     out->fajr = fajr + p->offset[1] / 60.0;
     out->sunrise = sunrise + p->offset[2] / 60.0;
     out->dhuhr = dhuhr + p->offset[3] / 60.0;
@@ -134,4 +189,46 @@ void pt_calculate(int y, int m, int d, double lat, double lng, double elevation,
     out->midnight = midnight + p->offset[8] / 60.0;
     out->firstthird = firstthird;
     out->lastthird = lastthird;
+}
+
+static long days_from_civil(int y, unsigned m, unsigned d) {
+    y -= m <= 2;
+    int era = (y >= 0 ? y : y - 399) / 400;
+    unsigned yoe = (unsigned)(y - era * 400);
+    unsigned doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+    unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    return era * 146097 + (long)doe - 719468;
+}
+
+static void civil_from_days(long z, int *y, unsigned *m, unsigned *d) {
+    z += 719468;
+    long era = (z >= 0 ? z : z - 146096) / 146097;
+    unsigned doe = (unsigned)(z - era * 146097);
+    unsigned yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    *y = (int)(yoe) + (int)(era * 400);
+    unsigned doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    unsigned mp = (5 * doy + 2) / 153;
+    *d = doy - (153 * mp + 2) / 5 + 1;
+    *m = mp + (mp < 10 ? 3 : -9);
+    *y += (int)(*m <= 2);
+}
+
+void pt_format_iso8601(double t, int y, int m, int d, double tz_offset_hours, char *buf, size_t buflen) {
+    double t2 = t + 0.5 / 60.0;
+    double mins = t2 > 0 ? floor(t2 * 60) : -ceil(-t2 * 60);
+    double jd = julian_day(y, m, d) + mins / 1440.0;
+    double unix_days = jd - 2440587.5;
+    long day = (long)floor(unix_days);
+    double frac = unix_days - day;
+    int yy, hh, mm, ss;
+    unsigned mo, dd;
+    civil_from_days(day, &yy, &mo, &dd);
+    long total_sec = (long)round(frac * 86400.0);
+    hh = (int)(total_sec / 3600);
+    mm = (int)((total_sec % 3600) / 60);
+    ss = (int)(total_sec % 60);
+    int oh = (int)fabs(tz_offset_hours);
+    int om = (int)round((fabs(tz_offset_hours) - oh) * 60);
+    snprintf(buf, buflen, "%04d-%02u-%02uT%02d:%02d:%02d%c%02d:%02d",
+             yy, mo, dd, hh, mm, ss, tz_offset_hours >= 0 ? '+' : '-', oh, om);
 }
