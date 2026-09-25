@@ -4,34 +4,41 @@ go     = "1.27"
 node   = "24"
 uv     = "latest"
 bun    = "latest"
-cmake = "latest"
+cmake  = "latest"
 
 [tasks.gen-fixtures]
-run = "uv run scripts/generate_fixtures.py"
+description = "Fetch golden vectors from the AlAdhan API (manual / scheduled drift job — NOT in CI)"
+run = "python3 scripts/generate_fixtures.py"
 
 [tasks.sync-data]
-run = "uv run scripts/sync_data.py"
+description = "Copy shared/methods.json into each language tree (committed copies)"
+run = "python3 scripts/sync_data.py"
 
 [tasks.test-python]
-run = "uv run pytest python/tests"
+dir = "python"
+run = "uv run pytest"
 
 [tasks.test-go]
+dir = "go"
 run = "go test ./..."
 
 [tasks.test-ts]
+dir = "typescript"
 run = "bun test"
 
 [tasks.test-c]
-run = "cmake --build c/build && ctest --test-dir c/build"
+dir = "c"
+run = "cmake --build build && ctest --test-dir build"
 
 [tasks.test]
 depends = ["test-python", "test-go", "test-ts", "test-c"]
 
 [tasks.parity]
-run = "uv run tests/parity.py"
+description = "Cross-language float parity (≤1e-9 hours)"
+run = "python3 tests/parity.py"
 
 [tasks.lint]
-run = "uv run ruff check python && gofmt -l . && bun x tsc --noEmit"
+run = "uv run --project python ruff check python && gofmt -l . && bun x tsc -p typescript/tsconfig.json --noEmit"
 
 [tasks.ci]
 depends = ["test", "parity", "lint"]
