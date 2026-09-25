@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools (mise)
+        uses: jdx/mise-action@v2
+
+      - name: Install C toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
+      - name: Install TypeScript deps
+        run: bun install --frozen-lockfile
+        working-directory: typescript
+
+      - name: Run CI (test + parity + lint)
+        run: mise run ci

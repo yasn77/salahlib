@@ -28,7 +28,7 @@ run = "bun test"
 
 [tasks.test-c]
 dir = "c"
-run = "cmake --build build && ctest --test-dir build"
+run = "cmake -B build && cmake --build build && ctest --test-dir build --output-on-failure"
 
 [tasks.test]
 depends = ["test-python", "test-go", "test-ts", "test-c"]

@@ -31,4 +31,7 @@ void pt_calculate(int y, int m, int d, double lat, double lng, double elevation,
 /* Format a float hour as ISO8601 (e.g. "2014-04-24T03:57:00+01:00") for date y/m/d and UTC offset (hours). */
 void pt_format_iso8601(double t, int y, int m, int d, double tz_offset_hours, char *buf, size_t buflen);
 
+/* Resolve a method (by id string "3" or name "MWL") into pt_params. Returns 0 on success, -1 if unknown. */
+int pt_resolve_method(const char *method, int school_hanafi, int is_ramadan, pt_params *out);
+
 #endif
