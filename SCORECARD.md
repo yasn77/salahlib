@@ -64,6 +64,25 @@ These were in `TASKS.md`/`EXECUTION_PLAN.md` and surfaced during verification/re
 - `iso8601` format (guarded with `NotImplementedError`).
 - C has no method-resolution (methods.json lives in higher-level languages) — by design.
 
+## Follow-up (completed after initial loop)
+
+- **Moonsighting backend** implemented in Python, Go and TypeScript (SPEC §11): deterministic `dyy`,
+  Fajr/Isha `a/b/c/d` coefficients + `shafaq` variants, `roundAway`, applied after night times and before
+  offsets. Verified against the PHP `MoonSightingTest` values (dyy/minutes) and live AlAdhan (method 15).
+- **iso8601 format** implemented in Python, Go and TypeScript (SPEC §10): `floor(t·60)` for positive /
+  `ceil(−t·60)` for negative on the rounded time, with next-day rollover. Verified against the PHP
+  `TimingsTest` ISO-8601 cases.
+- **Black-box AlAdhan tests** added for Go (`aladhan_test.go`), TypeScript (`aladhan.test.ts`) and C
+  (`test_aladhan.c`, hardcoded resolved params since C is kernel-only). All three now assert string-equality
+  against the committed `shared/vectors/aladhan/*.json` (8 fixtures incl. Moonsighting and MAKKAH Ramadan).
+
+## methods.json consumption (per language)
+
+- Python — **runtime** (`Path(...).read_text()` + `json.loads`).
+- Go — **build-time embed** (`//go:embed methods.json`).
+- TypeScript — **build-time import** (`import methodsJson from "./methods.json"` with `resolveJsonModule`).
+- C — not consumed (kernel-only; no method resolution).
+
 ## Final state
 
 - Monorepo: `shared/` (spec + methods.json + schema + golden vectors), `python/`, `go/`, `typescript/`, `c/`.
