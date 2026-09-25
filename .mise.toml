@@ -1,0 +1,37 @@
+[tools]
+python = "3.14"
+go     = "1.27"
+node   = "24"
+uv     = "latest"
+bun    = "latest"
+cmake = "latest"
+
+[tasks.gen-fixtures]
+description = "Fetch golden vectors from the AlAdhan API (manual / scheduled drift job — NOT in CI)"
+run = "uv run scripts/generate_fixtures.py"
+
+[tasks.sync-data]
+description = "Copy shared/methods.json into each language tree (committed copies)"
+run = "uv run scripts/sync_data.py"
+
+[tasks.test-python]
+run = "uv run pytest python/tests"
+
+[tasks.test-go]
+run = "go test ./..."
+
+[tasks.test-ts]
+run = "bun test"
+
+[tasks.test]
+depends = ["test-python", "test-go", "test-ts"]
+
+[tasks.parity]
+description = "Cross-language float parity (≤1e-9 hours)"
+run = "uv run tests/parity.py"
+
+[tasks.lint]
+run = "uv run ruff check python && gofmt -l . && bun x tsc --noEmit"
+
+[tasks.ci]
+depends = ["test", "parity", "lint"]

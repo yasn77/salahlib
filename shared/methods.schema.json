@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://salahlib/schemas/methods.json",
+  "title": "Prayer-times calculation methods registry",
+  "description": "Single source of truth for calculation methods. Params values may be numbers (depression angles), \"N min\" strings (minutes after another time), \"JAFARI\" (midnight mode), or a shafaq value for MOONSIGHTING.",
+  "type": "object",
+  "additionalProperties": { "$ref": "#/$defs/method" },
+  "$defs": {
+    "prayerKey": {
+      "enum": ["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Sunset", "Isha", "Midnight"]
+    },
+    "param": {
+      "type": ["number", "string"]
+    },
+    "offsets": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/prayerKey" },
+      "additionalProperties": { "type": "number" }
+    },
+    "angleSpec": {
+      "type": "object",
+      "properties": { "angle": { "type": "number" } },
+      "additionalProperties": false
+    },
+    "method": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Matches AlAdhan's method parameter. In use: 0-5, 7-23, 99 (id 6 unused). Non-AlAdhan methods use ids >= 1000."
+        },
+        "name": { "type": "string" },
+        "params": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/param" }
+        },
+        "location": {
+          "type": "object",
+          "required": ["latitude", "longitude"],
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        "defaultTune": {
+          "$ref": "#/$defs/offsets",
+          "description": "Per-method default tune offsets (TURKEY/DUBAI/MOROCCO/PORTUGAL). Visible in meta.offset; a non-zero user tune replaces (does not add to) these per key."
+        },
+        "ramadanTune": {
+          "$ref": "#/$defs/offsets",
+          "description": "Conditional default tune applied only during Ramadan (MAKKAH Isha +30). Requires the is_ramadan facade hint; overrides even a user value."
+        },
+        "adhanAdjustments": {
+          "$ref": "#/$defs/offsets",
+          "description": "adhan's opt-in per-method adjustments. Off by default."
+        },
+        "composite": {
+          "$ref": "#/$defs/composite",
+          "description": "Composite/seasonal method definition (date windows + fallbacks)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "composite": {
+      "type": "object",
+      "required": ["default"],
+      "properties": {
+        "default": {
+          "type": "object",
+          "properties": {
+            "fajr": { "type": "number" },
+            "isha": { "type": "number" },
+            "adjustments": { "$ref": "#/$defs/offsets" }
+          }
+        },
+        "windows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "type": "string", "pattern": "^\\d{2}-\\d{2}$" },
+              "to": { "type": "string", "pattern": "^\\d{2}-\\d{2}$" },
+              "fajr": { "type": "number" },
+              "isha": { "oneOf": [ { "type": "number" }, { "$ref": "#/$defs/angleSpec" } ] },
+              "adjustments": { "$ref": "#/$defs/offsets" }
+            }
+          }
+        },
+        "fajrFallback": {
+          "type": "object",
+          "properties": {
+            "whenNotReached": { "type": ["string", "number"] }
+          }
+        },
+        "ishaFallback": {
+          "type": "object",
+          "properties": {
+            "whenNotReached": { "type": ["string", "number"] }
+          }
+        }
+      }
+    }
+  }
+}
