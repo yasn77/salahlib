@@ -2,9 +2,9 @@
 python = "3.14"
 go     = "1.27"
 node   = "24"
-uv     = "latest"
-bun    = "latest"
-cmake  = "latest"
+uv     = "0.12.19"
+bun    = "1.4.2"
+cmake  = "4.4.3"
 
 [tasks.gen-fixtures]
 description = "Fetch golden vectors from the AlAdhan API (manual / scheduled drift job — NOT in CI)"
