@@ -24,10 +24,10 @@ def run(cmd, cwd):
 
 def main():
     commands = {
-        "python": (["uv", "run", "python", "tools/dump.py"], ROOT + "/python"),
-        "go": (["go", "run", "./tools/dump"], ROOT + "/go"),
-        "ts": (["bun", "src/dump.ts"], ROOT + "/typescript"),
-        "c": (["c/build/prayer_times_dump"], ROOT),
+        "python": (["uv", "run", "python", "tools/dump.py"], ROOT + "/langs/python"),
+        "go": (["go", "run", "./tools/dump"], ROOT + "/langs/go"),
+        "ts": (["bun", "src/dump.ts"], ROOT + "/langs/typescript"),
+        "c": (["langs/c/build/prayer_times_dump"], ROOT),
     }
     for case in CASES:
         results = {lang: run(cmd + case, cwd) for lang, (cmd, cwd) in commands.items()}

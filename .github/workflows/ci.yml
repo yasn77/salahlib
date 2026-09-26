@@ -20,7 +20,7 @@ jobs:
 
       - name: Install TypeScript deps
         run: bun install --frozen-lockfile
-        working-directory: typescript
+        working-directory: langs/typescript
 
       - name: Run CI (test + parity + lint)
         run: mise run ci

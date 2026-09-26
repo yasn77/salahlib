@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	prayertimes "github.com/yasn77/salahlib/go/pkg/prayertimes"
+	prayertimes "github.com/yasn77/salahlib/langs/go/pkg/prayertimes"
 )
 
 func main() {

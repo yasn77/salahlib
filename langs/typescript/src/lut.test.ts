@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { PrayerTimes } from "./facade.js";
 
 const FIXTURE = JSON.parse(
-  readFileSync(new URL("../../shared/vectors/lut/lut.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../../../shared/vectors/lut/lut.json", import.meta.url), "utf8"),
 );
 
 const WITHIN_1 = ["Sunrise", "Dhuhr", "Maghrib"] as const;

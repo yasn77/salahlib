@@ -19,7 +19,7 @@ type lutVector struct {
 }
 
 func TestLutBlackbox(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "shared", "vectors", "lut", "lut.json"))
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "shared", "vectors", "lut", "lut.json"))
 	if err != nil {
 		t.Fatalf("read lut fixture: %v", err)
 	}

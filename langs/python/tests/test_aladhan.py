@@ -4,7 +4,7 @@ from pathlib import Path
 
 from prayer_times import PrayerTimes
 
-VECTORS = Path(__file__).resolve().parent.parent.parent / "shared" / "vectors" / "aladhan"
+VECTORS = Path(__file__).resolve().parent.parent.parent.parent / "shared" / "vectors" / "aladhan"
 
 
 def _date(meta_date):

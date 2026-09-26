@@ -15,19 +15,19 @@ description = "Copy shared/methods.json into each language tree (committed copie
 run = "python3 scripts/sync_data.py"
 
 [tasks.test-python]
-dir = "python"
+dir = "langs/python"
 run = "uv run pytest"
 
 [tasks.test-go]
-dir = "go"
+dir = "langs/go"
 run = "go test ./..."
 
 [tasks.test-ts]
-dir = "typescript"
+dir = "langs/typescript"
 run = "bun test"
 
 [tasks.test-c]
-dir = "c"
+dir = "langs/c"
 run = "cmake -B build && cmake --build build && ctest --test-dir build --output-on-failure"
 
 [tasks.test]
@@ -38,7 +38,7 @@ description = "Cross-language float parity (≤1e-9 hours)"
 run = "python3 tests/parity.py"
 
 [tasks.lint]
-run = "uv run --project python ruff check python && gofmt -l . && bun x tsc -p typescript/tsconfig.json --noEmit"
+run = "uv run --project langs/python ruff check langs/python && gofmt -l langs/go && bun x tsc -p langs/typescript/tsconfig.json --noEmit"
 
 [tasks.ci]
 run = "mise run test && mise run parity && mise run lint"

@@ -12,9 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "shared" / "methods.json"
 TARGETS = [
-    ROOT / "python" / "prayer_times" / "data" / "methods.json",
-    ROOT / "go" / "pkg" / "prayertimes" / "methods.json",
-    ROOT / "typescript" / "src" / "methods.json",
+    ROOT / "langs" / "python" / "prayer_times" / "data" / "methods.json",
+    ROOT / "langs" / "go" / "pkg" / "prayertimes" / "methods.json",
+    ROOT / "langs" / "typescript" / "src" / "methods.json",
 ]
 
 

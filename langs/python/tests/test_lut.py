@@ -12,7 +12,7 @@ from pathlib import Path
 
 from prayer_times import PrayerTimes
 
-FIXTURE = Path(__file__).resolve().parent.parent.parent / "shared" / "vectors" / "lut" / "lut.json"
+FIXTURE = Path(__file__).resolve().parent.parent.parent.parent / "shared" / "vectors" / "lut" / "lut.json"
 
 WITHIN_1 = ("Sunrise", "Dhuhr", "Maghrib")
 WITHIN_5 = ("Asr", "Fajr", "Isha")

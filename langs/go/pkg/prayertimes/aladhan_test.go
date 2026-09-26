@@ -45,7 +45,7 @@ func hhmmToMin(s string) int {
 }
 
 func TestAlAdhanGoldenVectors(t *testing.T) {
-	matches, err := filepath.Glob("../../../shared/vectors/aladhan/*.json")
+	matches, err := filepath.Glob("../../../../shared/vectors/aladhan/*.json")
 	if err != nil || len(matches) == 0 {
 		t.Fatalf("no golden vectors found: %v", err)
 	}

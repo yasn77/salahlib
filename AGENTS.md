@@ -16,11 +16,12 @@ shared/
   methods.json             # SINGLE SOURCE OF TRUTH for calculation methods
   methods.schema.json      # JSON Schema for methods.json
   SPEC.md                  # the calculation spec (incl. the "target-behaviour register")
-  vectors/aladhan/*.json   # committed golden vectors fetched from AlAdhan
-python/prayer_times/       # Python package (kernel + facade)
-go/pkg/prayertimes/        # Go package (kernel + facade; module github.com/yasn77/salahlib/go)
-typescript/src/            # TypeScript (kernel + facade)
-c/                         # C static library + dump CLI (kernel + method resolution)
+  vectors/                 # committed golden vectors (aladhan/, lut/)
+langs/
+  python/prayer_times/     # Python package (kernel + facade)
+  go/pkg/prayertimes/      # Go package (kernel + facade; module github.com/yasn77/salahlib/langs/go)
+  typescript/src/          # TypeScript (kernel + facade)
+  c/                       # C static library + dump CLI (kernel + method resolution)
 scripts/                   # fixture generator, data sync, C-header generator
 tests/parity.py            # cross-language float-parity harness
 ```
@@ -57,8 +58,8 @@ CI runs `mise run ci` on every push (`.github/workflows/ci.yml`).
 
 - **`methods.json` is the single source of truth.** To add or change a calculation method, edit
   `shared/methods.json`, then:
-  - `mise run sync-data` → copies it into `python/…/data/`, `go/…/`, `typescript/src/`.
-  - rebuild C → `c/CMakeLists.txt` regenerates `c/include/methods_generated.h` at build time.
+  - `mise run sync-data` → copies it into `langs/python/…/data/`, `langs/go/…/`, `langs/typescript/src/`.
+  - rebuild C → `langs/c/CMakeLists.txt` regenerates `langs/c/include/methods_generated.h` at build time.
 - **Composition via `extends`.** A method may declare `"extends": "BASE"` to inherit the base method's
   `params` (e.g. `LUT` extends `MOONSIGHTING`, inheriting `shafaq: "general"`). This is an *authoring*
   convenience: `sync-data` and `generate_c_methods.py` flatten `extends` into fully-resolved `params` at

@@ -39,7 +39,7 @@ angles / minutes and (where AlAdhan applies them) default tune values. Methods a
 ## Summary
 
 - Python: `pip install prayer-times` → `from prayer_times import PrayerTimes`.
-- Go: `go get github.com/yasn77/salahlib/go` → `prayertimes.New("ISNA", "STANDARD")`.
+- Go: `go get github.com/yasn77/salahlib/langs/go` → `prayertimes.New("ISNA", "STANDARD")`.
 - TypeScript: `npm install prayer-times` → `new PrayerTimes("ISNA")`.
 - C: link `libprayer_times` and call `pt_calculate`.
 

@@ -3,11 +3,11 @@ project(salahlib_c C)
 
 # Regenerate the method registry header whenever shared/methods.json changes.
 set(METHODS_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/methods_generated.h)
-set(METHODS_GEN ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/generate_c_methods.py)
+set(METHODS_GEN ${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/generate_c_methods.py)
 add_custom_command(
     OUTPUT ${METHODS_HEADER}
     COMMAND python3 ${METHODS_GEN}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../shared/methods.json ${METHODS_GEN}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../../shared/methods.json ${METHODS_GEN}
     COMMENT "Generating methods_generated.h from methods.json"
     VERBATIM
 )

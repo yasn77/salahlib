@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { calculate, formatTime } from "./astronomy.js";
 import { resolve } from "./methods.js";
 
-const VECTORS = new URL("../../shared/vectors/aladhan/", import.meta.url).pathname;
+const VECTORS = new URL("../../../shared/vectors/aladhan/", import.meta.url).pathname;
 
 function tzOffsetHours(y: number, m: number, d: number, tz: string): number {
   const dt = new Date(Date.UTC(y, m - 1, d));
