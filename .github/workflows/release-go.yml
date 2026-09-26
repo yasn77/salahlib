@@ -1,6 +1,6 @@
 name: Release Go (module tag)
 
-# Triggered by a `langs/go/vX.Y.Z` tag. The tag prefix must be the module path so
+# Triggered by a `go/vX.Y.Z` tag. The tag prefix must be the module path so
 # proxy.golang.org can serve semver versions of the submodule (the Go module is
 # published by the tag alone); this workflow verifies the module is consumable at
 # that tag and files a GitHub Release.
@@ -9,7 +9,7 @@ name: Release Go (module tag)
 on:
   push:
     tags:
-      - "langs/go/v*"
+      - "go/v*"
 
 permissions:
   contents: read
@@ -34,17 +34,17 @@ jobs:
 
       - name: Parse version from tag
         id: ver
-        run: echo "version=${GITHUB_REF_NAME#langs/go/v}" >> "$GITHUB_OUTPUT"
+        run: echo "version=${GITHUB_REF_NAME#go/v}" >> "$GITHUB_OUTPUT"
 
       - name: Verify — full repo green before releasing
         run: mise run ci
 
-      - name: Confirm the module resolves at langs/go/vX.Y.Z from a clean consumer
+      - name: Confirm the module resolves at go/vX.Y.Z from a clean consumer
         run: |
           tmp=$(mktemp -d)
           cd "$tmp"
           go mod init example.com/releasecheck
-          # For the submodule, version vN maps to tag langs/go/vN; the proxy resolves it.
+          # For the submodule, version vN maps to tag go/vN; the proxy resolves it.
           GOPROXY=https://proxy.golang.org,direct go get "github.com/yasn77/salahlib/langs/go@v${{ steps.ver.outputs.version }}" || {
             echo "::warning::proxy.golang.org had not indexed the tag yet (can take a few minutes)."
             echo "::warning::Re-check manually: go get github.com/yasn77/salahlib/langs/go@v${{ steps.ver.outputs.version }}"
