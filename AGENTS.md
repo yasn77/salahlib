@@ -18,7 +18,7 @@ shared/
   SPEC.md                  # the calculation spec (incl. the "target-behaviour register")
   vectors/                 # committed golden vectors (aladhan/, lut/)
 langs/
-  python/prayer_times/     # Python package (kernel + facade)
+  python/salahlib/         # Python package (kernel + facade)
   go/pkg/prayertimes/      # Go package (kernel + facade; module github.com/yasn77/salahlib/langs/go)
   typescript/src/          # TypeScript (kernel + facade)
   c/                       # C static library + dump CLI (kernel + method resolution)
@@ -46,20 +46,32 @@ Tooling is managed by [mise](https://mise.jdx.dev) (`.mise.toml`):
 
 ```sh
 mise install        # install pinned toolchains (python, go, node, uv, bun, cmake)
-mise run ci         # test (4 languages) + parity + lint, sequentially
-mise run test       # run the four language test suites
-mise run parity     # assert all four kernels agree to ≤1e-9 hours
-mise run lint       # ruff (py) + gofmt + tsc --noEmit
+mise run ci           # test (4 languages) + parity + lint + check-sync, sequentially
+mise run test         # run the four language test suites
+mise run parity       # assert all four kernels agree to ≤1e-9 hours
+mise run lint         # ruff (py) + gofmt + tsc --noEmit
+mise run check-sync   # fanned-out method data matches shared/methods.json
+mise run bump <lang> <X.Y.Z>   # set a language's declared version
 ```
 
 CI runs `mise run ci` on every push (`.github/workflows/ci.yml`).
+
+## Releasing
+
+Per-language tag-triggered workflows (see `docs/developer-guide.md` "CI & releasing" for the full
+procedure and one-time registry setup): `python/v*` → PyPI, `typescript/v*` → npm, `langs/go/v*` → Go
+module tag, `c/v*` → GitHub Release. A `shared/` change means all four languages need new releases; a
+change under one `langs/<x>/` releases that language alone. Registry auth is OIDC trusted publishing —
+no tokens in CI.
 
 ## Critical invariants — do NOT break these
 
 - **`methods.json` is the single source of truth.** To add or change a calculation method, edit
   `shared/methods.json`, then:
-  - `mise run sync-data` → copies it into `langs/python/…/data/`, `langs/go/…/`, `langs/typescript/src/`.
-  - rebuild C → `langs/c/CMakeLists.txt` regenerates `langs/c/include/methods_generated.h` at build time.
+  - `mise run sync-data` → fans it out to `langs/python/salahlib/data/`, `langs/go/pkg/prayertimes/`, and
+    `langs/typescript/src/methods.generated.ts` (generated TS module; committed copy of the JSON itself is
+    not used). C regenerates `langs/c/include/methods_generated.h` at build time via `CMakeLists.txt`.
+  - `mise run check-sync` verifies nothing drifted (also part of `mise run ci`).
 - **Composition via `extends`.** A method may declare `"extends": "BASE"` to inherit the base method's
   `params` (e.g. `LUT` extends `MOONSIGHTING`, inheriting `shafaq: "general"`). This is an *authoring*
   convenience: `sync-data` and `generate_c_methods.py` flatten `extends` into fully-resolved `params` at

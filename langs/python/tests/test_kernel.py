@@ -1,5 +1,5 @@
-from prayer_times.astronomy import calculate, format_time
-from prayer_times.params import LatAdjust, Midnight, Offsets, Params, Unreached
+from salahlib.astronomy import calculate, format_time
+from salahlib.params import LatAdjust, Midnight, Offsets, Params, Unreached
 
 
 def _params(**kw):

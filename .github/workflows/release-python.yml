@@ -1,0 +1,67 @@
+name: Release Python → PyPI
+
+# Triggered by a `python/vX.Y.Z` tag.
+# Bump the declared version first:  mise run bump python X.Y.Z
+# One-time before the first tag: register a PyPI Trusted Publisher for this repo and
+# workflow file (see docs/developer-guide.md "Releasing").
+
+on:
+  push:
+    tags:
+      - "python/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # GitHub "pypi" environment: add required-reviewer protection here if you want a manual gate.
+    environment: pypi
+    permissions:
+      contents: write # GitHub Release
+      id-token: write # PyPI trusted publishing (OIDC) — no API token
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install tools (mise)
+        uses: jdx/mise-action@v4
+
+      - name: Install C toolchain (parity harness builds the C kernel)
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Install TypeScript deps
+        working-directory: langs/typescript
+        run: bun install --frozen-lockfile
+
+      - name: Parse version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#python/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Guard — tag matches declared version
+        working-directory: langs/python
+        run: python3 ../../scripts/set_version.py python "${{ steps.ver.outputs.version }}" --check
+
+      - name: Verify — full repo green before publishing
+        run: mise run ci
+
+      - name: Build sdist + wheel
+        working-directory: langs/python
+        run: uv build
+
+      - name: Smoke-test the wheel in a fresh venv
+        working-directory: langs/python
+        run: |
+          uv run --no-project --with "dist/salahlib-${{ steps.ver.outputs.version }}-py3-none-any.whl" \
+            python -c "import salahlib; assert salahlib.__version__ == '${{ steps.ver.outputs.version }}'; salahlib.PrayerTimes('ISNA'); print('smoke ok', salahlib.__version__)"
+
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: langs/python/dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: langs/python/dist/*
+          generate_release_notes: true

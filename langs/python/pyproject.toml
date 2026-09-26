@@ -1,9 +1,24 @@
 [project]
-name = "prayer-times"
+name = "salahlib"
 version = "0.1.0"
 description = "AlAdhan-compatible Islamic prayer times"
+readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.10"
 dependencies = ["tzdata"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Topic :: Scientific/Engineering :: Astronomy",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/yasn77/salahlib"
+Repository = "https://github.com/yasn77/salahlib"
+Documentation = "https://github.com/yasn77/salahlib/blob/main/docs/user-guide.md"
+Changelog = "https://github.com/yasn77/salahlib/releases"
 
 [dependency-groups]
 dev = ["pytest", "ruff", "jsonschema"]
@@ -13,10 +28,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["prayer_times"]
+packages = ["salahlib"]
+
+[tool.hatch.build.targets.sdist]
+include = ["salahlib", "tests", "tools", "pyproject.toml"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"prayer_times/data/methods.json" = "prayer_times/data/methods.json"
+"salahlib/data/methods.json" = "salahlib/data/methods.json"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

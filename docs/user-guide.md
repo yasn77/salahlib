@@ -29,9 +29,9 @@ independently:
 
 | Language | Install |
 |---|---|
-| Python | `pip install prayer-times` |
+| Python | `pip install salahlib` |
 | Go | `go get github.com/yasn77/salahlib/langs/go` |
-| TypeScript | `npm install prayer-times` (or `bun add`) |
+| TypeScript | `npm install salahlib` (or `bun add`) |
 | C | build the static library (see below) |
 
 ## Usage
@@ -40,7 +40,7 @@ independently:
 
 ```python
 from datetime import date
-from prayer_times import PrayerTimes
+from salahlib import PrayerTimes
 
 pt = PrayerTimes("ISNA")                       # or method id 2, or school="HANAFI"
 times = pt.get_times(
@@ -79,7 +79,7 @@ date/location).
 ### TypeScript
 
 ```ts
-import { PrayerTimes } from "prayer-times";
+import { PrayerTimes } from "salahlib";
 
 const pt = new PrayerTimes("ISNA");             // or "ISNA", "HANAFI"
 const times = pt.getTimes(new Date(Date.UTC(2024, 3, 24)), 51.508515, -0.1254872, "Europe/London");

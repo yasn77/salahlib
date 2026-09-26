@@ -1,8 +1,8 @@
 """Facade / method-resolution regression tests (SPEC §12 envelope + guards)."""
 from datetime import date
 
-from prayer_times import PrayerTimes
-from prayer_times.methods import resolve
+from salahlib import PrayerTimes
+from salahlib.methods import resolve
 
 
 def test_makkah_ramadan_override():

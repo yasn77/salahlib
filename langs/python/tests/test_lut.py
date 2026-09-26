@@ -10,7 +10,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from prayer_times import PrayerTimes
+from salahlib import PrayerTimes
 
 FIXTURE = Path(__file__).resolve().parent.parent.parent.parent / "shared" / "vectors" / "lut" / "lut.json"
 

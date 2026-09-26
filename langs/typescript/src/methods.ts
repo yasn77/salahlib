@@ -1,5 +1,5 @@
 import { Params, LatAdjust, Midnight, Unreached, Offsets } from "./params.js";
-import methodsJson from "./methods.json";
+import { methodsJson } from "./methods.generated.js";
 
 interface MethodEntry {
   id: number;

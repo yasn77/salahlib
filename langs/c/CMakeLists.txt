@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(salahlib_c C)
+project(salahlib_c VERSION 0.1.0 LANGUAGES C)
 
 # Regenerate the method registry header whenever shared/methods.json changes.
 set(METHODS_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/methods_generated.h)

@@ -26,14 +26,14 @@ shared/                    # single source of truth
   SPEC.md                  #   the calculation spec + target-behaviour register
   vectors/                 #   committed fixtures: aladhan/, lut/, parity_inputs.json
 langs/                     # one directory per language implementation
-  python/prayer_times/     #   Python package (kernel + facade)
+  python/salahlib/         #   Python package (kernel + facade)
   go/pkg/prayertimes/      #   Go package (module github.com/yasn77/salahlib/langs/go)
   typescript/src/          #   TypeScript (kernel + facade)
   c/                       #   C static library (kernel + method resolution)
 scripts/                   # fixture generator, data sync, C-header generator
 tests/parity.py            # cross-language float-parity harness
 docs/                      # user-guide.md, developer-guide.md
-.github/workflows/ci.yml   # GitHub Actions (mise run ci)
+.github/workflows/       # ci.yml + per-language release-*..yml (tag-triggered)
 ```
 
 ## Getting started
@@ -44,8 +44,9 @@ mise run ci         # test (4 languages) + parity + lint, sequentially
 ```
 
 Useful tasks: `mise run test` (the four suites), `mise run parity` (float parity), `mise run lint`
-(`ruff` + `gofmt` + `tsc`), `mise run sync-data` (fan out `methods.json`), `mise run gen-fixtures`
-(manual — fetch golden vectors from AlAdhan).
+(`ruff` + `gofmt` + `tsc`), `mise run check-sync` (generated data in sync), `mise run sync-data` (fan out
+`methods.json`), `mise run bump` (set a language's version), `mise run gen-fixtures` (manual — fetch
+golden vectors from AlAdhan).
 
 ## The kernel contract
 
@@ -65,8 +66,11 @@ Useful tasks: `mise run test` (the four suites), `mise run parity` (float parity
 ## `methods.json` — the single source of truth
 
 - Edit `shared/methods.json` (respecting `methods.schema.json`) to add or change a method, then:
-  - `mise run sync-data` — copies it into `langs/python/…/data/`, `langs/go/…/`, `langs/typescript/src/`.
+  - `mise run sync-data` — fans it out to `langs/python/salahlib/data/methods.json`,
+    `langs/go/pkg/prayertimes/methods.json`, and `langs/typescript/src/methods.generated.ts` (a generated
+    TS module, so the build output is runtime-valid ESM).
   - rebuild C — `langs/c/CMakeLists.txt` regenerates `langs/c/include/methods_generated.h` at build time.
+  - `mise run check-sync` — fails if any of those generated files is stale (wired into `mise run ci`).
 - **Composition via `extends`.** A method may declare `"extends": "BASE"` to inherit the base method's
   `params` (e.g. `LUT` extends `MOONSIGHTING`, inheriting `shafaq: "general"`). This is an *authoring*
   convenience: `sync-data` and `generate_c_methods.py` flatten it into resolved `params` at fan-out time, so
@@ -147,8 +151,53 @@ when AlAdhan behaviour changes.
 ## CI & releasing
 
 - CI (`.github/workflows/ci.yml`) runs `mise run ci` on every push.
-- Tag each language with its own prefix — `python/vX.Y.Z`, `go/vX.Y.Z`, `typescript/vX.Y.Z`, `c/vX.Y.Z` — and
-  keep semver in sync.
+- Each language releases independently under its own tag prefix:
+
+  | Tag | Workflow | Publishes to |
+  |---|---|---|
+  | `python/vX.Y.Z` | `release-python.yml` | PyPI (`salahlib`) + GitHub Release |
+  | `typescript/vX.Y.Z` | `release-typescript.yml` | npm (`salahlib`) + GitHub Release |
+  | `langs/go/vX.Y.Z` | `release-go.yml` | the Go module proxy (tag-only) + GitHub Release |
+  | `c/vX.Y.Z` | `release-c.yml` | GitHub Release (static-lib + source tarballs) |
+
+  (The Go tag prefix **must** be the submodule's path, `langs/go/`, for
+  `proxy.golang.org` to serve it.)
+
+- **When `shared/` changes, all four languages need a release** (the fanned-out
+  `methods.json` lives in every language tree). A change under one `langs/<x>/` is an
+  independent release of that language only. Keep the four versions in sync when a
+  `shared/` change forces everyone to move.
+
+### Release procedure
+
+1. Set the declared version: `mise run bump python 1.2.0` (python/typescript/c write it
+   into `pyproject.toml` + `__init__.py`, `package.json`, `CMakeLists.txt`; Go has no
+   version file — its version is the tag alone, so `bump go` is a no-op).
+2. Commit, tag, push: `git tag python/v1.2.0 && git push origin python/v1.2.0`.
+3. The matching workflow runs its guards (tag == declared version; npm also checks the
+   version isn't already on the registry), then the **full `mise run ci`** (four test
+   suites + parity + lint), then builds, smoke-tests the artifact, publishes via **OIDC
+   trusted publishing** (no long-lived tokens), and files a GitHub Release.
+
+### One-time registry setup (trusted publishing)
+
+Both registries authenticate with the workflow's GitHub OIDC identity — no secrets.
+
+- **PyPI** (`salahlib`): pypi.org → project → Publishing → add a GitHub Actions trusted
+  publisher: owner `yasn77`, repository `salahlib`, workflow `release-python.yml`. PyPI
+  can publish the very first version straight from CI.
+- **npm** (`salahlib`): npm trusted publishing **cannot create a brand-new package**, so
+  bootstrap the first version once from your machine:
+  `cd langs/typescript && bun run build && npm publish`. Then npmjs.com → package →
+  Settings → Trusted Publisher → GitHub Actions: owner `yasn77`, repository `salahlib`,
+  workflow `release-typescript.yml`, allowed action `npm publish`.
+- Create matching GitHub **environments** named `pypi` and `npm` (optionally with
+  required-reviewer protection for a manual approval gate).
+
+- **Never regenerate the golden vectors in CI**, and never hand-edit the fanned-out
+  method data (`langs/python/salahlib/data/methods.json`, `langs/go/pkg/prayertimes/methods.json`,
+  `langs/typescript/src/methods.generated.ts`) — edit `shared/methods.json` and run
+  `mise run sync-data`.
 
 ## Licensing / provenance
 

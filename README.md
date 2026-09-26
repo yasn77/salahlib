@@ -12,9 +12,9 @@ Multi-language Islamic prayer-times library, validated for **output parity with 
 
 | Language | Package | Import |
 |---|---|---|
-| Python | `prayer-times` (PyPI) | `from prayer_times import PrayerTimes` |
+| Python | `salahlib` (PyPI) | `from salahlib import PrayerTimes` |
 | Go | `github.com/yasn77/salahlib/langs/go` | `prayertimes.New("ISNA", "STANDARD")` |
-| TypeScript | `prayer-times` (npm) | `new PrayerTimes("ISNA")` |
+| TypeScript | `salahlib` (npm) | `new PrayerTimes("ISNA")` |
 | C | `libprayer_times` (static) | `pt_resolve_method` / `pt_calculate` |
 
 ## Repository layout

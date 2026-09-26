@@ -6,6 +6,14 @@ uv     = "0.12.19"
 bun    = "1.4.2"
 cmake  = "4.4.3"
 
+[tasks.bump]
+description = "Set a language's declared version: mise run bump <python|go|typescript|c> <X.Y.Z>"
+run = "python3 scripts/set_version.py"
+
+[tasks.check-version]
+description = "Verify a language's declared version matches a tag version: mise run check-version <lang> <X.Y.Z>"
+run = "python3 scripts/set_version.py --check"
+
 [tasks.gen-fixtures]
 description = "Fetch golden vectors from the AlAdhan API (manual / scheduled drift job — NOT in CI)"
 run = "python3 scripts/generate_fixtures.py"
@@ -40,5 +48,9 @@ run = "python3 tests/parity.py"
 [tasks.lint]
 run = "uv run --project langs/python ruff check langs/python && gofmt -l langs/go && bun x tsc -p langs/typescript/tsconfig.json --noEmit"
 
+[tasks.check-sync]
+description = "Fail if the fanned-out method data is stale vs shared/methods.json"
+run = "python3 scripts/check_sync.py"
+
 [tasks.ci]
-run = "mise run test && mise run parity && mise run lint"
+run = "mise run test && mise run parity && mise run lint && mise run check-sync"

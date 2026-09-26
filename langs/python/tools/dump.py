@@ -2,8 +2,8 @@
 """Print raw float hours for parity. usage: dump.py y m d lat lng elev fajr isha isha_min dhuhr asr"""
 import sys
 
-from prayer_times.astronomy import calculate
-from prayer_times.params import LatAdjust, Midnight, Offsets, Params, Unreached
+from salahlib.astronomy import calculate
+from salahlib.params import LatAdjust, Midnight, Offsets, Params, Unreached
 
 args = [float(x) for x in sys.argv[1:]]
 y, m, d = int(args[0]), int(args[1]), int(args[2])
