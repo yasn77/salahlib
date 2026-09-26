@@ -84,7 +84,13 @@ jobs:
           npm --version
           npm publish
 
+      - name: Pack tarball (release asset)
+        working-directory: langs/typescript
+        run: npm pack
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          files: |
+            langs/typescript/salahlib-*.tgz
