@@ -24,7 +24,7 @@ shared/                    # single source of truth
   methods.json             #   the method registry (24 methods + CUSTOM + LUT)
   methods.schema.json      #   JSON Schema
   SPEC.md                  #   the calculation spec + target-behaviour register
-  vectors/                 #   committed golden vectors (aladhan/, lut/)
+  vectors/                 #   committed fixtures: aladhan/, lut/, parity_inputs.json
 langs/                     # one directory per language implementation
   python/prayer_times/     #   Python package (kernel + facade)
   go/pkg/prayertimes/      #   Go package (module github.com/yasn77/salahlib/langs/go)
@@ -92,10 +92,57 @@ Useful tasks: `mise run test` (the four suites), `mise run parity` (float parity
 
 ## Testing
 
-- **Golden vectors** — `shared/vectors/aladhan/*.json` (AlAdhan) and `shared/vectors/lut/lut.json` (London
-  Unified) are **committed** and are the accuracy oracle. Each language has a blackbox test that reads them.
-  **Never regenerate them in CI** — `mise run gen-fixtures` is a manual, network task.
-- **Cross-language float parity** — `tests/parity.py` asserts the four kernels agree to ≤1e-9 h.
+`shared/vectors/` holds three kinds of committed fixture: two **accuracy oracles** (the blackbox tests) and
+one **consistency input** (the parity harness).
+
+### `aladhan/` — the AlAdhan accuracy oracle
+
+Eight `*.json` files, each the full AlAdhan API response `data` object (`{timings, date, meta}`), fetched once
+by `scripts/generate_fixtures.py` and committed:
+
+| File | Method (id) | Location · date | What it pins |
+|---|---|---|---|
+| `london_isna.json` | ISNA (2) | London · 2014-04-24 | baseline timings |
+| `london_mwl.json` | MWL (3) | London · 2014-04-24 | 18°/17° angles |
+| `makkah.json` | Umm al-Qura (4) | Makkah · 2024-02-20 | Isha = Maghrib +90 min |
+| `makkah_ramadan.json` | Umm al-Qura (4) | Makkah · 2024-03-11 | Ramadan Isha = Maghrib +120 min (`ramadanTune` +30) |
+| `ankara_turkey.json` | Diyanet (13) | Ankara · 2024-04-24 | `"90 min"` Isha string + default tune |
+| `sydney_south.json` | MWL (3) | Sydney · 2024-06-20 | southern-hemisphere sign handling |
+| `high_lat_65n.json` | MWL (3) | 65°N · 2024-06-20 | unreached-angle clamp |
+| `london_moonsighting.json` | Moonsighting (15) | London · 2024-10-15 | DY-day table + `shafaq` |
+
+Each language has a blackbox test that loads these and asserts **string-equality** with its own facade
+output — except Asr, which is allowed ±1 minute (the API's Asr is server-clock-dependent).
+
+### `lut/lut.json` — the London Unified regional oracle
+
+`LUT` is not an AlAdhan method, so it has no `aladhan/` vector. Its oracle is `lut.json`, a small table of
+published [londonsalahtimes.com](https://londonsalahtimes.com/technical/) times with the shape
+`{name, latitude, longitude, timezone, note, cases: [{date, timings}]}`. Tolerances are wider than the
+AlAdhan oracle (the published timetable uses Meeus solar and a refined Hizbul-Ulama chart): Sunrise, Dhuhr,
+Sunset and Maghrib match exactly; Asr ±3 min; Fajr/Isha ±5 min.
+
+### `parity_inputs.json` — the cross-language consistency input
+
+Unlike the two oracles above, this file is **not** a golden vector. It is the input set for `tests/parity.py`:
+eight fully-resolved kernel cases (`schema_version: 2`, `tolerance_hours: 1e-9`), each a numeric `date` plus
+`latitude`/`longitude`/`elevation` plus a resolved `params` object (no method names, no timezone strings, no
+date objects). Each case targets one SPEC edge:
+
+- `london_isna_2014` — ISNA baseline.
+- `high_lat_asr_canary` — the Asr Julian-epoch canary (SPEC §13.2).
+- `not_reached_mwl_65n_june` — Fajr/Isha angle not reached → clamp (SPEC §13.1).
+- `makkah_90min_isha` — Isha as minutes (`"90 min"` flag).
+- `tehran_jafari_midnight` — JAFARI midnight, `NONE` high-lat handling.
+- `sydney_south_hanafi` — southern hemisphere + Hanafi Asr factor 2.
+- `equator_zero_elevation` — degenerate-path coverage.
+- `elevation_nonzero` — horizon-dip term (SPEC §6.5).
+
+`tests/parity.py` runs each language's `dump` CLI over this file and asserts the four kernels agree to
+≤1e-9 h (≈3.6 µs).
+
+**Never regenerate the committed vectors in CI** — `mise run gen-fixtures` is a manual, network task used only
+when AlAdhan behaviour changes.
 
 ## CI & releasing
 
