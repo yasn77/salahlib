@@ -195,10 +195,14 @@ Both registries authenticate with the workflow's GitHub OIDC identity — no sec
 - **npm** (`salahlib`): trusted publishing cannot create a package, so 0.1.0 was bootstrapped
   once manually (`bun run build && npm publish --no-provenance` — the flag is needed because a
   workstation has no OIDC identity for `publishConfig.provenance`; `Automatic provenance
-  generation not supported for provider: null`). Now configure the trusted publisher:
-  npmjs.com → package → Settings → Trusted Publisher → GitHub Actions: owner `yasn77`,
-  repository `salahlib`, workflow `release-typescript.yml`, environment `npm`, allowed action
-  `npm publish`. All later versions publish from CI with provenance attached automatically.
+  generation not supported for provider: null`). Trusted publisher registered (owner `yasn77`,
+  repository `salahlib`, workflow `release-typescript.yml`, environment `npm`, permission
+  `publish`) — done from the CLI with `npm trust github salahlib --repo yasn77/salahlib
+  --file release-typescript.yml --env npm --allow-publish`; the first call demands web 2FA:
+  run it under a TTY (`script -qec "…" /dev/null`), open the printed
+  `npmjs.com/auth/cli/…` URL in a logged-in browser, and the CLI completes the registration.
+  All later versions publish from CI with provenance attached automatically
+  (`npm audit signatures` verifies it).
 - GitHub **environments** `pypi` and `npm` exist; optionally add required-reviewer protection
   for a manual approval gate.
 
