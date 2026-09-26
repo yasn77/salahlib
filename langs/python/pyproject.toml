@@ -1,6 +1,6 @@
 [project]
 name = "salahlib"
-version = "0.1.0"
+version = "0.1.1"
 description = "AlAdhan-compatible Islamic prayer times"
 readme = "README.md"
 license = "Apache-2.0"
