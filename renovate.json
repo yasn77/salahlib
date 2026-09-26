@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": [
+    "mise",
+    "github-actions",
+    "pep621",
+    "gomod",
+    "bun"
+  ],
+  "labels": ["dependencies"],
+  "schedule": ["before 5am on monday"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "description": "Periodically refresh uv.lock / bun.lock / go.sum in place."
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["mise"],
+      "groupName": "mise toolchain",
+      "description": "Pin and update tool versions in .mise.toml (python, go, node, uv, bun, cmake)."
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "description": "Update GitHub Actions (actions/checkout, jdx/mise-action, etc.)."
+    },
+    {
+      "matchManagers": ["pep621"],
+      "groupName": "python dependencies",
+      "description": "Update pyproject.toml dependencies, dev dependency-groups, and uv.lock."
+    },
+    {
+      "matchManagers": ["gomod"],
+      "groupName": "go dependencies",
+      "description": "Update go.mod and go.sum."
+    },
+    {
+      "matchManagers": ["bun"],
+      "groupName": "typescript dependencies",
+      "description": "Update package.json devDependencies (typescript, bun-types) and regenerate bun.lock."
+    }
+  ]
+}

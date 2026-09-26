@@ -1,0 +1,32 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# Go
+/go/bin/
+*.test
+*.out
+
+# Node / TypeScript
+node_modules/
+dist/
+dist-c/
+*.tsbuildinfo
+
+# mise
+.mise.toml
+.mise.local.toml
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

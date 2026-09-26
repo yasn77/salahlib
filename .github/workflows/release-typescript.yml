@@ -1,0 +1,90 @@
+name: Release TypeScript → npm
+
+# Triggered by a `typescript/vX.Y.Z` tag.
+# Bump the declared version first:  mise run bump typescript X.Y.Z
+# One-time before the first tag: the very first version must be published manually once
+# (`bun run build && npm publish --no-provenance` from langs/typescript; the flag is
+# needed because local machines have no OIDC identity for provenance) because npm trusted
+# publishing cannot create a brand-new package; then register this repo + workflow file
+# as the package's Trusted Publisher on npmjs.com. See docs/developer-guide.md.
+# From CI the provenance in publishConfig works as-is: the runner's OIDC token signs it.
+
+on:
+  push:
+    tags:
+      - "typescript/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: write # GitHub Release
+      id-token: write # npm trusted publishing (OIDC) — no NPM_TOKEN
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install tools (mise)
+        uses: jdx/mise-action@v4
+
+      - name: Install C toolchain (parity harness builds the C kernel)
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Parse version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#typescript/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Guard — tag matches declared version
+        working-directory: langs/typescript
+        run: |
+          pkg=$(node -p "require('./package.json').version")
+          if [ "$pkg" != "${{ steps.ver.outputs.version }}" ]; then
+            echo "::error::tag ${{ steps.ver.outputs.version }} != package.json $pkg"; exit 1
+          fi
+
+      - name: Guard — version not already on npm
+        run: |
+          if npm view "salahlib@${{ steps.ver.outputs.version }}" version >/dev/null 2>&1; then
+            echo "::error::salahlib@${{ steps.ver.outputs.version }} is already published — bump first"; exit 1
+          fi
+
+      - name: Install deps
+        working-directory: langs/typescript
+        run: bun install --frozen-lockfile
+
+      - name: Verify — full repo green before publishing
+        run: mise run ci
+
+      - name: Build dist/
+        working-directory: langs/typescript
+        run: bun run build
+
+      - name: Smoke-test the built package (Node ESM import)
+        working-directory: langs/typescript
+        run: |
+          node --input-type=module -e "
+            import { PrayerTimes } from './dist/index.js';
+            const t = new PrayerTimes('ISNA').getTimes(new Date(Date.UTC(2024,3,24)), 51.508515, -0.1254872, 'Europe/London');
+            if (t.Fajr !== '03:55') { console.error('unexpected Fajr', t.Fajr); process.exit(1); }
+            console.log('smoke ok', t.Fajr);
+          "
+
+      - name: Publish to npm (trusted publishing + provenance)
+        working-directory: langs/typescript
+        # Uses mise's Node 24 bundled npm (11.x): supports OIDC trusted publishing
+        # (>= 11.5.1) AND ships sigstore for provenance. Do NOT "upgrade to npm@latest"
+        # here — npm 12.0.0 dropped the bundled sigstore module, so any provenance
+        # publish dies with MODULE_NOT_FOUND (npm/cli#9722). Revisit once a fixed
+        # npm 12.x is what Node's setup bundles.
+        # No NODE_AUTH_TOKEN / NPM_TOKEN in this job — npm performs the OIDC exchange itself.
+        run: |
+          npm --version
+          npm publish
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

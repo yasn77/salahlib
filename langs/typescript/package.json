@@ -1,0 +1,46 @@
+{
+  "name": "salahlib",
+  "version": "0.1.1",
+  "description": "AlAdhan-compatible Islamic prayer times",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yasn77/salahlib.git",
+    "directory": "langs/typescript"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "bun test"
+  },
+  "keywords": [
+    "prayer-times",
+    "islam",
+    "salah",
+    "adhan",
+    "aladhan",
+    "astronomy"
+  ],
+  "devDependencies": {
+    "bun-types": "^1.4.2",
+    "typescript": "^7.0.0"
+  }
+}

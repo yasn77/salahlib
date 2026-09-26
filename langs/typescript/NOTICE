@@ -1,0 +1,41 @@
+SalahLib — a multi-language library for Islamic prayer times.
+
+Provenance
+==========
+
+This library is implemented from permissively-licensed and factual sources:
+
+  * PrayTimes v3 (MIT, © 2007–2025 Hamid Zarrabi-Zadeh) — the core kernel mathematics.
+  * USNO "Sun Approx" solar-position reference (public domain — US federal government work).
+  * The published prayer-time calculation method data (factual depression angles / minutes).
+  * Moonsighting seasonal-twilight coefficients, via the MIT-licensed `adhan` library.
+  * The AlAdhan Prayer Times API (https://aladhan.com) — used as a black-box reference to validate accuracy
+    and to derive each AlAdhan-specific behaviour (see SPEC §12–§13).
+
+Acknowledgements
+================
+
+We thank and acknowledge:
+
+  * Hamid Zarrabi-Zadeh and PrayTimes.org (https://praytimes.org), for the original algorithm and its
+    MIT-licensed v3 release on which the kernel is based.
+  * The Islamic Network (https://islamic.network), for the prayer-times ecosystem and the public AlAdhan API
+    that made independent verification possible.
+  * The US Naval Observatory, for the published "Sun Approx" solar-position reference.
+  * Batoul Apps, for the MIT-licensed `adhan` library.
+
+License
+=======
+
+Copyright (c) 2026 SalahLib contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use the files in this repository
+except in compliance with the License. You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+
+Third-party components (PrayTimes v3, adhan-js) retain their own MIT notices — see THIRD-PARTY-NOTICES.md.

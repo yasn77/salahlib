@@ -1,0 +1,29 @@
+{
+  "name": "London Unified Prayer Timetable (published times, londonsalahtimes.com)",
+  "latitude": 51.5073,
+  "longitude": -0.12755,
+  "timezone": "Europe/London",
+  "note": "Sunrise/Dhuhr/Sunset/Maghrib match exactly; Asr within ±3 min (Meeus vs Sun Approx); Fajr/Isha within ±5 min (LUT uses a refined Hizbul-Ulama observation chart vs the standard Moonsighting model).",
+  "cases": [
+    {
+      "date": "2026-09-26",
+      "timings": { "Fajr": "05:22", "Sunrise": "06:50", "Dhuhr": "12:57", "Asr": "16:05", "Maghrib": "18:53", "Isha": "20:10" }
+    },
+    {
+      "date": "2026-09-27",
+      "timings": { "Fajr": "05:24", "Sunrise": "06:52", "Dhuhr": "12:57", "Asr": "16:03", "Maghrib": "18:51", "Isha": "20:08" }
+    },
+    {
+      "date": "2026-09-28",
+      "timings": { "Fajr": "05:26", "Sunrise": "06:53", "Dhuhr": "12:57", "Asr": "16:01", "Maghrib": "18:48", "Isha": "20:05" }
+    },
+    {
+      "date": "2026-09-29",
+      "timings": { "Fajr": "05:28", "Sunrise": "06:55", "Dhuhr": "12:56", "Asr": "16:00", "Maghrib": "18:46", "Isha": "20:03" }
+    },
+    {
+      "date": "2026-09-30",
+      "timings": { "Fajr": "05:30", "Sunrise": "06:57", "Dhuhr": "12:56", "Asr": "15:58", "Maghrib": "18:44", "Isha": "20:01" }
+    }
+  ]
+}

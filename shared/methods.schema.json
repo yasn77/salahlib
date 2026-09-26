@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://salahlib/schemas/methods.json",
+  "title": "Prayer-times calculation methods registry",
+  "description": "Method registry: params may be numbers, \"N min\" strings, \"JAFARI\", or a shafaq value.",
+  "type": "object",
+  "additionalProperties": { "$ref": "#/$defs/method" },
+  "$defs": {
+    "prayerKey": {
+      "enum": ["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Sunset", "Isha", "Midnight"]
+    },
+    "param": { "type": ["number", "string"] },
+    "offsets": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/prayerKey" },
+      "additionalProperties": { "type": "number" }
+    },
+    "angleSpec": {
+      "type": "object",
+      "properties": { "angle": { "type": "number" } },
+      "additionalProperties": false
+    },
+    "method": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "extends": {
+          "type": "string",
+          "description": "Key of a base method whose `params` this method inherits (flattened at sync/generate time)."
+        },
+        "params": { "type": "object", "additionalProperties": { "$ref": "#/$defs/param" } },
+        "location": {
+          "type": "object",
+          "required": ["latitude", "longitude"],
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        "defaultTune": { "$ref": "#/$defs/offsets" },
+        "ramadanTune": { "$ref": "#/$defs/offsets" },
+        "adhanAdjustments": { "$ref": "#/$defs/offsets" },
+        "composite": { "$ref": "#/$defs/composite" }
+      },
+      "additionalProperties": false
+    },
+    "composite": {
+      "type": "object",
+      "required": ["default"],
+      "properties": {
+        "default": {
+          "type": "object",
+          "properties": {
+            "fajr": { "type": "number" },
+            "isha": { "type": "number" },
+            "adjustments": { "$ref": "#/$defs/offsets" }
+          }
+        },
+        "windows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "type": "string", "pattern": "^\\d{2}-\\d{2}$" },
+              "to": { "type": "string", "pattern": "^\\d{2}-\\d{2}$" },
+              "fajr": { "type": "number" },
+              "isha": { "oneOf": [ { "type": "number" }, { "$ref": "#/$defs/angleSpec" } ] },
+              "adjustments": { "$ref": "#/$defs/offsets" }
+            }
+          }
+        },
+        "fajrFallback": { "type": "object", "properties": { "whenNotReached": { "type": ["string", "number"] } } },
+        "ishaFallback": { "type": "object", "properties": { "whenNotReached": { "type": ["string", "number"] } } }
+      }
+    }
+  }
+}

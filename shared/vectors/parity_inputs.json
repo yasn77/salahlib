@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "tolerance_hours": 1e-9,
+  "note": "Kernel contract: calculate(y, m, d, latitude, longitude, elevation, params). Dates are midnight-normalised; Asr uses a Julian epoch one day ahead of the date (SPEC §6.3/§13.2), derived inside the kernel. Each language's dump CLI prints float hours at 17 significant digits.",
+  "cases": [
+    {
+      "id": "london_isna_2014",
+      "description": "ISNA, London, 2014-04-24 (BST), standard school.",
+      "date": { "y": 2014, "m": 4, "d": 24 },
+      "latitude": 51.508515,
+      "longitude": -0.1254872,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 15, "isha": 15, "isha_is_minutes": false,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "ANGLE_BASED", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 1.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "high_lat_asr_canary",
+      "description": "64N 20E 2024-01-22 — the Asr Julian-epoch canary (SPEC §13.2).",
+      "date": { "y": 2024, "m": 1, "d": 22 },
+      "latitude": 64.0,
+      "longitude": 20.0,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 15, "isha": 15, "isha_is_minutes": false,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "ANGLE_BASED", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 1.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "not_reached_mwl_65n_june",
+      "description": "65N June MWL — Fajr/Isha 18-degree angle not reached (SPEC §13.1 clamp path).",
+      "date": { "y": 2024, "m": 6, "d": 20 },
+      "latitude": 65.0,
+      "longitude": 0.0,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 18, "isha": 17, "isha_is_minutes": false,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "ANGLE_BASED", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 0.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "makkah_90min_isha",
+      "description": "Umm al-Qura — Isha as '90 min' after Maghrib (minutes flag).",
+      "date": { "y": 2024, "m": 3, "d": 20 },
+      "latitude": 21.3890824,
+      "longitude": 39.8579118,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 18.5, "isha": 90, "isha_is_minutes": true,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "ANGLE_BASED", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 3.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "tehran_jafari_midnight",
+      "description": "Tehran-like: maghrib angle 4.5, JAFARI midnight, NONE high-lat.",
+      "date": { "y": 2024, "m": 3, "d": 20 },
+      "latitude": 35.6891975,
+      "longitude": 51.3889736,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 17.7, "isha": 14, "isha_is_minutes": false,
+        "maghrib": 4.5, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "NONE", "midnight_mode": "JAFARI",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 3.5,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "sydney_south_hanafi",
+      "description": "Southern hemisphere + Hanafi Asr factor 2.",
+      "date": { "y": 2024, "m": 6, "d": 20 },
+      "latitude": -33.8688,
+      "longitude": 151.2093,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 18, "isha": 18, "isha_is_minutes": false,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 2,
+        "lat_adjust": "ANGLE_BASED", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 10.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "equator_zero_elevation",
+      "description": "Equator, zero timezone, zero elevation (degenerate-path coverage).",
+      "date": { "y": 2024, "m": 9, "d": 22 },
+      "latitude": 0.0,
+      "longitude": 0.0,
+      "elevation": 0,
+      "params": {
+        "fajr_angle": 18, "isha": 17, "isha_is_minutes": false,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "MIDDLE_OF_THE_NIGHT", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": 0.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    },
+    {
+      "id": "elevation_nonzero",
+      "description": "Non-zero elevation exercises the horizon-angle dip term (SPEC §6.5).",
+      "date": { "y": 2024, "m": 3, "d": 20 },
+      "latitude": 39.70421229999999,
+      "longitude": -86.39943869999999,
+      "elevation": 800,
+      "params": {
+        "fajr_angle": 15, "isha": 15, "isha_is_minutes": false,
+        "maghrib": 0, "maghrib_is_minutes": false,
+        "imsak_mins": 10, "dhuhr_mins": 0, "asr_factor": 1,
+        "lat_adjust": "ANGLE_BASED", "midnight_mode": "STANDARD",
+        "unreached_policy": "CLAMP",
+        "timezone_offset_hours": -5.0,
+        "offsets": { "Imsak": 0, "Fajr": 0, "Sunrise": 0, "Dhuhr": 0, "Asr": 0, "Maghrib": 0, "Sunset": 0, "Isha": 0, "Midnight": 0 }
+      }
+    }
+  ]
+}

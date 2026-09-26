@@ -1,0 +1,69 @@
+name: Release C (GitHub Release)
+
+# Triggered by a `c/vX.Y.Z` tag. C has no registry: this workflow builds the
+# static library, runs its tests, and attaches portable artifacts
+# (source tarball + built libprayer_times.a + public headers) to a GitHub Release.
+# Bump the declared version first:  mise run bump c X.Y.Z
+
+on:
+  push:
+    tags:
+      - "c/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # GitHub Release
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install tools (mise)
+        uses: jdx/mise-action@v4
+
+      - name: Install C toolchain
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Install TypeScript deps (parity harness needs all four kernels)
+        working-directory: langs/typescript
+        run: bun install --frozen-lockfile
+
+      - name: Parse version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#c/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Guard — tag matches declared version
+        working-directory: langs/c
+        run: python3 ../../scripts/set_version.py c "${{ steps.ver.outputs.version }}" --check
+
+      - name: Verify — full repo green before releasing
+        run: mise run ci
+
+      - name: Build release artifacts
+        working-directory: langs/c
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          ctest --test-dir build --output-on-failure
+          out="../../dist-c"   # repo root — gh-release resolves `files:` from there
+          mkdir -p "$out"
+          pkg="salahlib-c-${{ steps.ver.outputs.version }}-linux-x86_64"
+          mkdir -p "$pkg/lib" "$pkg/bin" "$pkg/include"
+          cp build/libprayer_times.a "$pkg/lib/"
+          cp build/prayer_times_dump "$pkg/bin/"
+          cp include/prayer_times.h "$pkg/include/"
+          cp ../../LICENSE ../../NOTICE ../../THIRD-PARTY-NOTICES.md "$pkg/"
+          tar czf "$out/$pkg.tar.gz" "$pkg"
+          rm -rf "$pkg"
+          # source-only tarball (methods_generated.h regenerates at build time)
+          tar czf "$out/salahlib-c-${{ steps.ver.outputs.version }}-source.tar.gz" \
+            --exclude build CMakeLists.txt src include test tools
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-c/*.tar.gz
+          generate_release_notes: true
