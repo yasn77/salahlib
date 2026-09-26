@@ -34,4 +34,4 @@ mise install && mise run test
 
 ## License
 
-Apache-2.0. See NOTICE, PROVENANCE.md and THIRD-PARTY-NOTICES.md.
+Apache-2.0. See NOTICE and THIRD-PARTY-NOTICES.md.

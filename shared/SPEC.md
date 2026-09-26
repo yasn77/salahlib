@@ -8,7 +8,7 @@ Executable specification of the prayer-times calculation.
 > method data (factual depression angles / minutes per organisation), and **black-box observation** of the
 > AlAdhan Prayer Times API. No GPL-licensed source was used to write this specification. Where the target
 > output differs from PrayTimes v3, the difference is recorded in §13 as an **observed target behaviour**
-> with its black-box evidence. See PROVENANCE.md.
+> with its black-box evidence.
 
 **The kernel is a pure function of numbers and enums.** It receives a calendar date, numeric coordinates,
 elevation, and a fully-resolved `Params` object. It never sees method names, date objects, timezone

@@ -93,5 +93,5 @@ CI runs `mise run ci` on every push (`.github/workflows/ci.yml`).
 ## Licensing / provenance
 
 Apache-2.0. The kernel is derived from PrayTimes v3 (MIT) + the public-domain USNO "Sun Approx" formula +
-published method data + black-box AlAdhan observation. See `PROVENANCE.md`, `CLEANROOM.md`,
-`THIRD-PARTY-NOTICES.md` and `NOTICE`. Do not vendor or port from GPL sources.
+published method data + black-box AlAdhan observation. See `THIRD-PARTY-NOTICES.md` and `NOTICE`.
+Do not vendor or port from GPL sources.

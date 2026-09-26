@@ -3,8 +3,7 @@ SalahLib — a multi-language library for Islamic prayer times.
 Provenance
 ==========
 
-This library is implemented from permissively-licensed and factual sources (see PROVENANCE.md for the full
-record):
+This library is implemented from permissively-licensed and factual sources:
 
   * PrayTimes v3 (MIT, © 2007–2025 Hamid Zarrabi-Zadeh) — the core kernel mathematics.
   * USNO "Sun Approx" solar-position reference (public domain — US federal government work).
