@@ -1,10 +1,10 @@
 [tools]
-python = "3.14"
+python = "3.15.0"
 go = "1.27"
 node = "24"
-uv = "0.12.19"
-bun = "1.4.2"
-cmake = "4.4.3"
+uv = "0.13.0"
+bun = "1.4.3"
+cmake = "4.4.4"
 "npm:typescript" = "7.0.2"
 
 [tasks.bump]
